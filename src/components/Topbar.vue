@@ -1,20 +1,20 @@
 <template>
   <nav>
-    <v-toolbar light app>
+    <v-app-bar light app>
       <v-app-bar-nav-icon
         class="grey--text"
         @click="drawer = !drawer"
       ></v-app-bar-nav-icon>
-      <v-toolbar-title class="text-uppercase grey--text">
+      <v-app-bar-title class="text-uppercase grey--text">
         <span class="font-weight-light">NIST</span>
         <span>manajemen</span>
-      </v-toolbar-title>
+      </v-app-bar-title>
       <v-spacer> </v-spacer>
       <v-btn flat color="grey">
         <span>Sign Out</span>
         <v-icon right>mdi-exit-to-app</v-icon>
       </v-btn>
-    </v-toolbar>
+    </v-app-bar>
     <v-navigation-drawer app v-model="drawer"  class="primary">
       <v-card>
         <v-list>
