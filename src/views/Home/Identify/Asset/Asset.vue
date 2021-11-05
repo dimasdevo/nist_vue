@@ -23,8 +23,8 @@
     </div>
 </template>
 <script>
-import AssetForm from '../components/AssetForm.vue'
-import AssetTable from '../components/AssetTable.vue'
+import AssetForm from './AssetForm.vue'
+import AssetTable from './AssetTable.vue'
 export default {
     name:'Asset',
     components: {
