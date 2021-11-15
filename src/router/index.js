@@ -2,19 +2,25 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home/Home.vue'
 import Login from '../views/Login.vue'
+import Asset from '../views/Home/Identify/Asset/Asset.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'Index',
+    name: 'Home',
     component: Home
   },
   {
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/asset',
+    name: 'Asset',
+    component: Asset
   },
 
 ]
@@ -25,4 +31,4 @@ const router = new VueRouter({
   routes
 })
 
-export default router
+export default router;
