@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="mb-4">Daftar Asset</h1>
+    <h1 class="mb-4">Daftar Volume</h1>
     <hr />
     <v-btn dark class="ma-1">
       <span>Import</span>
@@ -16,12 +16,16 @@
       <v-list>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="assets" name="asset.xls"> Export To XLS </download-excel>
+            <download-excel :data="volumes" name="volumes.xls">
+              Export To XLS
+            </download-excel>
           </v-list-item-title>
         </v-list-item>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="assets" type="csv" name="asset.csv"> Export To CSV </download-excel>
+            <download-excel :data="volumes" type="csv" name="volumes.csv">
+              Export To CSV
+            </download-excel>
           </v-list-item-title>
         </v-list-item>
       </v-list>
@@ -36,55 +40,53 @@
       <span>Add</span>
       <v-icon right>mdi-plus</v-icon>
     </v-btn>
-    <asset-table v-bind:assets="assets" />
-    <asset-form
-      ref="assetform"
-      @edit-asset="editAsset"
-      @add-asset="addAsset"
-      @del-asset="deleteAsset"
+    <volume-table v-bind:volumes="volumes" />
+    <volume-form
+      ref="volumeform"
+      @edit-volume="editVolume"
+      @add-volume="addVolume"
+      @del-volume="deleteVolume"
     />
   </div>
 </template>
 <script>
-import AssetForm from "./AssetForm.vue";
-import AssetTable from "./AssetTable.vue";
-
 import axios from "axios";
 import qs from "qs";
+
+import VolumeTable from "./VolumeTable.vue";
+import VolumeForm from "./VolumeForm.vue";
+
 export default {
-  name: "Asset",
+  name: "Volume",
   components: {
-    AssetTable,
-    AssetForm,
+    VolumeTable,
+    VolumeForm
   },
   data() {
     return {
-      assets: [],
+      volumes: [],
     };
   },
   methods: {
     openAddDialog() {
-      this.$refs.assetform.openDialogAdd();
+      this.$refs.volumeform.openDialogAdd();
     },
     openEditDialog(data) {
-      this.$refs.assetform.openDialogEdit(data);
+      this.$refs.volumeform.openDialogEdit(data);
     },
     openDeleteDialog(data) {
-      this.$refs.assetform.openDialogDelete(data);
+      this.$refs.volumeform.openDialogDelete(data);
     },
-    editAsset(id, asset) {
+    editVolume(id, volume) {
       let it = this;
       let data = {
-        n_asset: asset.n_asset,
-        i_asset_sn: asset.i_asset_sn,
-        i_asset_inv: asset.i_asset_inv,
-        n_asset_type: asset.n_asset_type,
-        a_asset: asset.a_asset,
-        e_asset_note: asset.e_asset_note,
+        n_stor_vol: volume.n_stor_vol,
+        q_stor_vol: volume.q_stor_vol,
+        c_stor_aggr: volume.c_stor_aggr,
       };
       let options = {
         method: "PUT",
-        url: `${process.env.VUE_APP_API_NIST}/asset`,
+        url: `${process.env.VUE_APP_API_NIST}/storage/volume`,
         params: { id: id },
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         data: qs.stringify(data),
@@ -94,24 +96,21 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateAsset();
+          it.populateVolume();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    addAsset(asset) {
+    addVolume(volume) {
       let it = this;
       let formData = new FormData();
-      formData.append("n_asset", asset.n_asset);
-      formData.append("i_asset_sn", asset.i_asset_sn);
-      formData.append("i_asset_inv", asset.i_asset_inv);
-      formData.append("n_asset_type", asset.n_asset_type);
-      formData.append("a_asset", asset.a_asset);
-      formData.append("e_asset_note", asset.e_asset_note);
+      formData.append("n_stor_vol", volume.n_stor_vol);
+      formData.append("q_stor_vol", volume.q_stor_vol);
+      formData.append("c_stor_aggr", volume.c_stor_aggr);
       let options = {
         method: "post",
-        url: `${process.env.VUE_APP_API_NIST}/asset`,
+        url: `${process.env.VUE_APP_API_NIST}/storage/volume`,
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
@@ -120,17 +119,17 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateAsset();
+          it.populateVolume();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    deleteAsset(id) {
+    deleteVolume(id) {
       let it = this;
       let options = {
         method: "DELETE",
-        url: `${process.env.VUE_APP_API_NIST}/asset`,
+        url: `${process.env.VUE_APP_API_NIST}/storage/volume`,
         params: { id: id },
       };
 
@@ -138,23 +137,22 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateAsset();
+          it.populateVolume();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    populateAsset() {
+    populateVolume() {
       var self = this;
       axios({
         method: "GET",
-        url: `${process.env.VUE_APP_API_NIST}/asset`,
+        url: `${process.env.VUE_APP_API_NIST}/storage/volume`,
       })
         .then(function (response) {
           if (response.status === 200) {
             let data = response.data;
-            self.assets = data;
-            console.log(data)
+            self.volumes = data;
           } else {
             console.log("gagal");
           }
@@ -165,13 +163,13 @@ export default {
     },
   },
   mounted() {
-    this.populateAsset();
+    this.populateVolume();
   },
 };
 </script>
 
 <style>
-#asset {
+#volume {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

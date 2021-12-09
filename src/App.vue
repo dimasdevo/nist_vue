@@ -4,7 +4,7 @@
     <v-main class="ma-4" v-if="userIsAuthenticated">
       <router-view />
     </v-main>
-    <v-main v-if="!userIsAuthenticated">
+    <v-main class="ma-4" v-if="!userIsAuthenticated">
       <login />
     </v-main>
   </v-app>
@@ -24,6 +24,7 @@ export default {
     userIsAuthenticated(){
       return this.user!==null && this.user !== undefined;
     }
-  }
+  },
+
 };
 </script>

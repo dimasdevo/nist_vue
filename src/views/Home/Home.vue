@@ -4,12 +4,12 @@
       <v-col v-for="item in items" :key="item.id">
         <v-card
           class="mx-auto"
-          max-width="344"
         >
           <v-img
             :src="item.img"
             height="180px"
             width="180px"
+            contain
           ></v-img>
 
           <v-card-title>

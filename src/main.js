@@ -8,9 +8,11 @@ import vuetify from './plugins/vuetify'
 import axios from 'axios'
 import VueCookie from 'vue-cookie'
 import store from './plugins/store'
+import JsonExcel from "vue-json-excel";
 
 Vue.config.productionTip = false
 
+Vue.component("downloadExcel", JsonExcel);
 Vue.use(VueCookie);
 
 

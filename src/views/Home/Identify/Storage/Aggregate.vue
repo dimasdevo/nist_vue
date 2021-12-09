@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="mb-4">Daftar Asset</h1>
+    <h1 class="mb-4">Daftar Aggregate</h1>
     <hr />
     <v-btn dark class="ma-1">
       <span>Import</span>
@@ -16,12 +16,16 @@
       <v-list>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="assets" name="asset.xls"> Export To XLS </download-excel>
+            <download-excel :data="aggregates" name="aggregates.xls">
+              Export To XLS
+            </download-excel>
           </v-list-item-title>
         </v-list-item>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="assets" type="csv" name="asset.csv"> Export To CSV </download-excel>
+            <download-excel :data="aggregates" type="csv" name="aggregates.csv">
+              Export To CSV
+            </download-excel>
           </v-list-item-title>
         </v-list-item>
       </v-list>
@@ -36,55 +40,52 @@
       <span>Add</span>
       <v-icon right>mdi-plus</v-icon>
     </v-btn>
-    <asset-table v-bind:assets="assets" />
-    <asset-form
-      ref="assetform"
-      @edit-asset="editAsset"
-      @add-asset="addAsset"
-      @del-asset="deleteAsset"
+    <aggregate-table v-bind:aggregates="aggregates" />
+    <aggregate-form
+      ref="aggregateform"
+      @edit-aggregate="editAggregate"
+      @add-aggregate="addAggregate"
+      @del-aggregate="deleteAggregate"
     />
   </div>
 </template>
 <script>
-import AssetForm from "./AssetForm.vue";
-import AssetTable from "./AssetTable.vue";
-
 import axios from "axios";
 import qs from "qs";
+
+import AggregateTable from "./AggregateTable.vue";
+import AggregateForm from "./AggregateForm.vue";
+
 export default {
-  name: "Asset",
+  name: "Aggregate",
   components: {
-    AssetTable,
-    AssetForm,
+    AggregateTable,
+    AggregateForm
   },
   data() {
     return {
-      assets: [],
+      aggregates: [],
     };
   },
   methods: {
     openAddDialog() {
-      this.$refs.assetform.openDialogAdd();
+      this.$refs.aggregateform.openDialogAdd();
     },
     openEditDialog(data) {
-      this.$refs.assetform.openDialogEdit(data);
+      this.$refs.aggregateform.openDialogEdit(data);
     },
     openDeleteDialog(data) {
-      this.$refs.assetform.openDialogDelete(data);
+      this.$refs.aggregateform.openDialogDelete(data);
     },
-    editAsset(id, asset) {
+    editAggregate(id, aggregate) {
       let it = this;
       let data = {
-        n_asset: asset.n_asset,
-        i_asset_sn: asset.i_asset_sn,
-        i_asset_inv: asset.i_asset_inv,
-        n_asset_type: asset.n_asset_type,
-        a_asset: asset.a_asset,
-        e_asset_note: asset.e_asset_note,
+        n_stor_aggr: aggregate.n_stor_aggr,
+        q_stor_aggr: aggregate.q_stor_aggr,
       };
       let options = {
         method: "PUT",
-        url: `${process.env.VUE_APP_API_NIST}/asset`,
+        url: `${process.env.VUE_APP_API_NIST}/storage/aggregate`,
         params: { id: id },
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         data: qs.stringify(data),
@@ -94,24 +95,20 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateAsset();
+          it.populateAggregate();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    addAsset(asset) {
+    addAggregate(aggregate) {
       let it = this;
       let formData = new FormData();
-      formData.append("n_asset", asset.n_asset);
-      formData.append("i_asset_sn", asset.i_asset_sn);
-      formData.append("i_asset_inv", asset.i_asset_inv);
-      formData.append("n_asset_type", asset.n_asset_type);
-      formData.append("a_asset", asset.a_asset);
-      formData.append("e_asset_note", asset.e_asset_note);
+      formData.append("n_stor_aggr", aggregate.n_stor_aggr);
+      formData.append("q_stor_aggr", aggregate.q_stor_aggr);
       let options = {
         method: "post",
-        url: `${process.env.VUE_APP_API_NIST}/asset`,
+        url: `${process.env.VUE_APP_API_NIST}/storage/aggregate`,
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
@@ -120,17 +117,17 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateAsset();
+          it.populateAggregate();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    deleteAsset(id) {
+    deleteAggregate(id) {
       let it = this;
       let options = {
         method: "DELETE",
-        url: `${process.env.VUE_APP_API_NIST}/asset`,
+        url: `${process.env.VUE_APP_API_NIST}/storage/aggregate`,
         params: { id: id },
       };
 
@@ -138,23 +135,22 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateAsset();
+          it.populateAggregate();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    populateAsset() {
+    populateAggregate() {
       var self = this;
       axios({
         method: "GET",
-        url: `${process.env.VUE_APP_API_NIST}/asset`,
+        url: `${process.env.VUE_APP_API_NIST}/storage/aggregate`,
       })
         .then(function (response) {
           if (response.status === 200) {
             let data = response.data;
-            self.assets = data;
-            console.log(data)
+            self.aggregates = data;
           } else {
             console.log("gagal");
           }
@@ -165,13 +161,14 @@ export default {
     },
   },
   mounted() {
-    this.populateAsset();
+    console.log("aggregate populate")
+    this.populateAggregate();
   },
 };
 </script>
 
 <style>
-#asset {
+#aggregate {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

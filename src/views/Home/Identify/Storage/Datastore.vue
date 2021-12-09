@@ -1,12 +1,12 @@
 <template>
   <div class="container">
-    <h1 class="mb-4">Daftar Asset</h1>
+    <h1 class="mb-4">Daftar Datastore</h1>
     <hr />
     <v-btn dark class="ma-1">
       <span>Import</span>
       <v-icon right>mdi-file-import</v-icon>
     </v-btn>
-    <v-menu :rounded="rounded" offset-y>
+    <v-menu  offset-y>
       <template v-slot:activator="{ on, attrs }">
         <v-btn dark class="ma-1" v-bind="attrs" v-on="on">
           <span>Export</span>
@@ -16,12 +16,16 @@
       <v-list>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="assets" name="asset.xls"> Export To XLS </download-excel>
+            <download-excel :data="datastores" name="datastores.xls">
+              Export To XLS
+            </download-excel>
           </v-list-item-title>
         </v-list-item>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="assets" type="csv" name="asset.csv"> Export To CSV </download-excel>
+            <download-excel :data="datastores" type="csv" name="datastores.csv">
+              Export To CSV
+            </download-excel>
           </v-list-item-title>
         </v-list-item>
       </v-list>
@@ -36,55 +40,53 @@
       <span>Add</span>
       <v-icon right>mdi-plus</v-icon>
     </v-btn>
-    <asset-table v-bind:assets="assets" />
-    <asset-form
-      ref="assetform"
-      @edit-asset="editAsset"
-      @add-asset="addAsset"
-      @del-asset="deleteAsset"
+    <datastore-table v-bind:datastores="datastores" />
+    <datastore-form
+      ref="datastoreform"
+      @edit-datastore="editDatastore"
+      @add-datastore="addDatastore"
+      @del-datastore="deleteDatastore"
     />
   </div>
 </template>
 <script>
-import AssetForm from "./AssetForm.vue";
-import AssetTable from "./AssetTable.vue";
-
 import axios from "axios";
 import qs from "qs";
+
+import DatastoreTable from "./DatastoreTable.vue";
+import DatastoreForm from "./DatastoreForm.vue";
+
 export default {
-  name: "Asset",
+  name: "Datastore",
   components: {
-    AssetTable,
-    AssetForm,
+    DatastoreTable,
+    DatastoreForm
   },
   data() {
     return {
-      assets: [],
+      datastores: [],
     };
   },
   methods: {
     openAddDialog() {
-      this.$refs.assetform.openDialogAdd();
+      this.$refs.datastoreform.openDialogAdd();
     },
     openEditDialog(data) {
-      this.$refs.assetform.openDialogEdit(data);
+      this.$refs.datastoreform.openDialogEdit(data);
     },
     openDeleteDialog(data) {
-      this.$refs.assetform.openDialogDelete(data);
+      this.$refs.datastoreform.openDialogDelete(data);
     },
-    editAsset(id, asset) {
+    editDatastore(id, datastore) {
       let it = this;
       let data = {
-        n_asset: asset.n_asset,
-        i_asset_sn: asset.i_asset_sn,
-        i_asset_inv: asset.i_asset_inv,
-        n_asset_type: asset.n_asset_type,
-        a_asset: asset.a_asset,
-        e_asset_note: asset.e_asset_note,
+        n_stor_ds: datastore.n_stor_ds,
+        q_stor_ds: datastore.q_stor_ds,
+        c_stor_lun: datastore.c_stor_lun,
       };
       let options = {
         method: "PUT",
-        url: `${process.env.VUE_APP_API_NIST}/asset`,
+        url: `${process.env.VUE_APP_API_NIST}/storage/datastore`,
         params: { id: id },
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         data: qs.stringify(data),
@@ -94,24 +96,21 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateAsset();
+          it.populateDatastore();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    addAsset(asset) {
+    addDatastore(datastore) {
       let it = this;
       let formData = new FormData();
-      formData.append("n_asset", asset.n_asset);
-      formData.append("i_asset_sn", asset.i_asset_sn);
-      formData.append("i_asset_inv", asset.i_asset_inv);
-      formData.append("n_asset_type", asset.n_asset_type);
-      formData.append("a_asset", asset.a_asset);
-      formData.append("e_asset_note", asset.e_asset_note);
+      formData.append("n_stor_ds", datastore.n_stor_ds);
+      formData.append("q_stor_ds", datastore.q_stor_ds);
+      formData.append("c_stor_lun", datastore.c_stor_lun);
       let options = {
         method: "post",
-        url: `${process.env.VUE_APP_API_NIST}/asset`,
+        url: `${process.env.VUE_APP_API_NIST}/storage/datastore`,
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
@@ -120,17 +119,17 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateAsset();
+          it.populateDatastore();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    deleteAsset(id) {
+    deleteDatastore(id) {
       let it = this;
       let options = {
         method: "DELETE",
-        url: `${process.env.VUE_APP_API_NIST}/asset`,
+        url: `${process.env.VUE_APP_API_NIST}/storage/datastore`,
         params: { id: id },
       };
 
@@ -138,23 +137,22 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateAsset();
+          it.populateDatastore();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    populateAsset() {
+    populateDatastore() {
       var self = this;
       axios({
         method: "GET",
-        url: `${process.env.VUE_APP_API_NIST}/asset`,
+        url: `${process.env.VUE_APP_API_NIST}/storage/datastore`,
       })
         .then(function (response) {
           if (response.status === 200) {
             let data = response.data;
-            self.assets = data;
-            console.log(data)
+            self.datastores = data;
           } else {
             console.log("gagal");
           }
@@ -165,13 +163,13 @@ export default {
     },
   },
   mounted() {
-    this.populateAsset();
+    this.populateDatastore();
   },
 };
 </script>
 
 <style>
-#asset {
+#datastore {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
