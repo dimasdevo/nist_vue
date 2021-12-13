@@ -1,5 +1,5 @@
 <template>
-  <div class="datastore-form">
+  <div class="host-form">
     <v-dialog v-model="dialog" width="500">
       <v-card>
         <v-card-title class="text-h5"> {{ this.title }} </v-card-title>
@@ -8,40 +8,37 @@
           <v-card-text>
             <div class="mb-3">
               <v-text-field
-                label="Datastore Name"
-                placeholder="Input datastore name"
-                v-model="datastore.n_stor_ds"
-                :rules="rules.n_stor_ds"
+                label="Host Name"
+                placeholder="Input host name"
+                v-model="host.n_server_host"
+                :rules="rules.n_server_host"
                 filled
               >
               </v-text-field>
-            </div>
-            <div class="mb-3">
               <v-text-field
-                label="Size Datastore (TB)"
-                placeholder="Input datastore"
-                v-model="datastore.q_stor_ds"
-                type="number"
-                :rules="rules.q_stor_ds"
+                label="IP Name"
+                placeholder="Input IP host"
+                v-model="host.i_server_iphost"
+                :rules="rules.i_server_iphost"
                 filled
               >
               </v-text-field>
-            </div>
-            <div class="mb-3">
+              <v-text-field
+                label="Host Domain"
+                placeholder="Input host domain"
+                v-model="host.n_server_domainhost"
+                :rules="rules.n_server_domainhost"
+                filled
+              >
+              </v-text-field>
+              <div class="mb-3">
               <v-select
                 :items="items"
-                v-model="datastore.c_stor_lun"
+                v-model="host.c_server_clu"
                 filled
-                label="Select LUN"
+                label="Select Cluster"
               ></v-select>
             </div>
-            <div class="mb-3">
-              <v-select
-                :items="items_cluster"
-                v-model="datastore.c_server_clu"
-                filled
-                label="Select CLUSTER"
-              ></v-select>
             </div>
           </v-card-text>
           <v-card-actions>
@@ -55,7 +52,7 @@
     </v-dialog>
     <v-dialog v-model="dialogDelete" max-width="500px">
         <v-card>
-          <v-card-title class="text-h5">Are you sure you want to delete this item {{datastore.n_stor_ds}}?</v-card-title>
+          <v-card-title class="text-h5">Are you sure you want to delete this item {{host.n_server_host}}?</v-card-title>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
@@ -79,28 +76,29 @@
 import axios from "axios";
 
 export default {
-  name: "datastore-add",
+  name: "host-add",
   data() {
     return {
       snackbar: false,
       items: ['Foo', 'Bar', 'Fizz', 'Buzz'],
-      items_cluster: ['Foo', 'Bar', 'Fizz', 'Buzz'],
       text: "",
       timeout: 2000,
       type: "add",
-      title: "FORMULIR TAMBAH DATASTORE",
+      title: "FORMULIR TAMBAH HOST",
       dialog: false,
       dialogDelete: false,
-      datastore: {
-        c_stor_ds:"",
-        n_stor_ds: "",
-        q_stor_ds: "",
-        c_stor_lun: "",
+      host: {
+        c_server_host: "",
+        n_server_host: "",
+        i_server_iphost: "",
+        n_server_domainhost: "",
         c_server_clu: "",
       },
       rules: {
-        n_stor_ds: [(v) => !!v || "Nama Datastore is required"],
-        q_stor_ds: [(v) => !!v || "Size Datastore is required"],
+        n_server_host: [(v) => !!v || "Nama Host is required"],
+        i_server_iphost: [(v) => !!v || "IP Host is required"],
+        n_server_domainhost: [(v) => !!v || "Domain Host is required"],
+        c_server_clu: [(v) => !!v || "Cluster is required"],
       },
     };
   },
@@ -111,84 +109,60 @@ export default {
         this.snackbar = true;
         switch (this.type) {
           case "edit":
-            this.text = "Succesfull updating datastore";
-            this.$emit("edit-datastore", this.datastore.c_stor_ds, this.datastore);
+            this.text = "Succesfull updating host";
+            this.$emit("edit-host", this.host.c_server_host, this.host);
             break;
 
           case "delete":
-            this.text = "Succesfull deleting datastore";
-            this.$emit("del-datastore", this.datastore.c_stor_ds);
+            this.text = "Succesfull deleting host";
+            this.$emit("del-host", this.host.c_server_host);
             break;
 
           default:
-            this.text = "Succesfull adding  datastore";
-            console.log(this.datastore)
-            this.$emit("add-datastore", this.datastore);
+            this.text = "Succesfull adding  host";
+            console.log(this.host)
+            this.$emit("add-host", this.host);
             break;
         }
         this.clearData();
       }
     },
     deleteItemConfirm(){
-      this.text = "Succesfull deleting datastore";
-      this.$emit("del-datastore", this.datastore.c_stor_ds);
+      this.text = "Succesfull deleting host";
+      this.$emit("del-host", this.host.c_server_host);
       this.clearData();
     },
     closeDelete(){
       this.clearData();
     },
     clearData(){
-      this.datastore = {
-        c_stor_ds:"",
-        n_stor_ds: "",
-        q_stor_ds: "",
-        c_stor_lun: "",
+      this.host = {
+        c_server_host: "",
+        n_server_host: "",
+        i_server_iphost: "",
+        n_server_domainhost: "",
+        c_server_clu: "",
       };
       this.dialog = false;
       this.dialogDelete = false;
     },
     openDialogAdd() {
       this.dialog = true;
-      this.title = "FORM ADD DATASTORE";
+      this.title = "FORM ADD HOST";
       this.type = "add";
-      this.populateLun();
       this.populateCluster();
     },
     openDialogEdit(data) {
       this.dialog = true;
-      this.datastore = data;
-      this.title = "FORM EDIT DATASTORE";
+      this.host = data;
+      this.title = "FORM EDIT HOST";
       this.type = "edit";
-      this.populateLun();
       this.populateCluster();
     },
     openDialogDelete(data) {
       this.dialogDelete = true;
-      this.datastore = data;
+      this.host = data;
       this.type = "delete";
-    },
-    populateLun() {
-      var self = this;
-      axios({
-        method: "GET",
-        url: `${process.env.VUE_APP_API_NIST}/storage/lun`,
-      })
-        .then(function (response) {
-          if (response.status === 200) {
-            let data = response.data;
-            self.items = data.map(obj =>{
-              let rObj = {}
-              rObj['text'] = obj.n_stor_lun
-              rObj['value'] = obj.c_stor_lun
-              return rObj;
-            });
-          } else {
-            console.log("gagal");
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
     },
     populateCluster() {
       var self = this;
@@ -199,7 +173,7 @@ export default {
         .then(function (response) {
           if (response.status === 200) {
             let data = response.data;
-            self.items_cluster = data.map(obj =>{
+            self.items = data.map(obj =>{
               let rObj = {}
               rObj['text'] = obj.n_server_clu
               rObj['value'] = obj.c_server_clu
@@ -212,7 +186,7 @@ export default {
         .catch(function (error) {
           console.log(error);
         });
-    },
+    }
   },
 };
 </script>

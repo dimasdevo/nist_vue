@@ -9,6 +9,7 @@
         <v-icon class="mr-2" color="yellow" @click="editProfile(item)">mdi-pencil</v-icon>
         <v-icon color="red" @click="deleteProfile(item)">mdi-delete</v-icon>
       </template>
+      
     </v-data-table>
   </v-card>
 </template>
@@ -25,6 +26,7 @@ export default {
         { text: "Nama", value: "n_profl", align: "start" },
         { text: "Deskripsi", value: "e_profl" },
         { text: "Date Entry", value: "d_entry" },
+        { text: "NIK Entry", value: "i_entry" },
         { text: "Action", value: "action" },
       ],
     };

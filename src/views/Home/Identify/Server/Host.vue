@@ -1,12 +1,12 @@
 <template>
   <div class="container">
-    <h1 class="mb-4">Daftar Menu</h1>
+    <h1 class="mb-4">Daftar Host</h1>
     <hr />
     <v-btn dark class="ma-1">
       <span>Import</span>
       <v-icon right>mdi-file-import</v-icon>
     </v-btn>
-    <v-menu offset-y>
+    <v-menu  offset-y>
       <template v-slot:activator="{ on, attrs }">
         <v-btn dark class="ma-1" v-bind="attrs" v-on="on">
           <span>Export</span>
@@ -16,14 +16,14 @@
       <v-list>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="menus" name="menus.xls">
+            <download-excel :data="hosts" name="hosts.xls">
               Export To XLS
             </download-excel>
           </v-list-item-title>
         </v-list-item>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="menus" type="csv" name="menus.csv">
+            <download-excel :data="hosts" type="csv" name="hosts.csv">
               Export To CSV
             </download-excel>
           </v-list-item-title>
@@ -40,12 +40,12 @@
       <span>Add</span>
       <v-icon right>mdi-plus</v-icon>
     </v-btn>
-    <menu-table v-bind:menus="menus" />
-    <menu-form
-      ref="menuForm"
-      @edit-menu="editMenu"
-      @add-menu="addMenu"
-      @del-menu="deleteMenu"
+    <host-table v-bind:hosts="hosts" />
+    <host-form
+      ref="hostform"
+      @edit-host="editHost"
+      @add-host="addHost"
+      @del-host="deleteHost"
     />
   </div>
 </template>
@@ -53,44 +53,38 @@
 import axios from "axios";
 import qs from "qs";
 
-import MenuTable from "./MenuTable.vue";
-import MenuForm from "./MenuForm.vue"; 
+import HostTable from "./HostTable.vue";
+import HostForm from "./HostForm.vue";
 
 export default {
-  name: "menu",
+  name: "Host",
   components: {
-    MenuTable,
-    MenuForm
+    HostTable,
+    HostForm
   },
   data() {
     return {
-      menus: [],
+      hosts: [],
     };
   },
   methods: {
     openAddDialog() {
-      this.$refs.menuForm.openDialogAdd();
+      this.$refs.hostform.openDialogAdd();
     },
     openEditDialog(data) {
-      this.$refs.menuForm.openDialogEdit(data);
+      this.$refs.hostform.openDialogEdit(data);
     },
     openDeleteDialog(data) {
-      this.$refs.menuForm.openDialogDelete(data);
+      this.$refs.hostform.openDialogDelete(data);
     },
-    editProfile(id, profile) {
+    editHost(id, host) {
       let it = this;
       let data = {
-        i_emp: profile.i_emp,
-        n_emp: profile.n_emp,
-        c_org_cur: profile.c_org_cur,
-        i_emp_email: profile.i_emp_email,
-        i_update: this.i_entry,
-        i_profl:JSON.stringify(profile.i_profl)
+        n_server_clu: host.n_server_clu,
       };
-      console.log(qs.stringify(data));
       let options = {
         method: "PUT",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/server/host`,
         params: { id: id },
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         data: qs.stringify(data),
@@ -100,46 +94,38 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateProfile();
+          it.populateHost();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    addProfile(profile) {
+    addHost(host) {
       let it = this;
       let formData = new FormData();
-      formData.append("i_emp", profile.i_emp);
-      formData.append("n_emp", profile.n_emp);
-      formData.append("i_emp_email", profile.i_emp_email);
-      formData.append("c_org_cur", profile.c_org_cur);
-      formData.append("i_profl",JSON.stringify(profile.i_profl));
-      formData.append("i_entry", this.i_entry);
+      formData.append("n_server_clu", host.n_server_clu);
       let options = {
         method: "post",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/server/host`,
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
 
-      let response = axios
+      axios
         .request(options)
         .then(function (response) {
-          if(response.status=='200'){
-            it.populateProfile();  
-            return response;
-          }
+          console.log(response.data);
+          it.populateHost();
         })
         .catch(function (error) {
           console.error(error);
         });
-      console.log(response);
     },
-    deleteProfile(id) {
+    deleteHost(id) {
       let it = this;
       let options = {
         method: "DELETE",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/server/host`,
         params: { id: id },
       };
 
@@ -147,22 +133,22 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateProfile();
+          it.populateHost();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    async populateMenu() {
+    populateHost() {
       var self = this;
-      await axios({
+      axios({
         method: "GET",
-        url: `${process.env.VUE_APP_API_NIST}/menu`,
+        url: `${process.env.VUE_APP_API_NIST}/server/host`,
       })
         .then(function (response) {
           if (response.status === 200) {
-            let data = response.data;            
-            self.menus = data;
+            let data = response.data;
+            self.hosts = data;
           } else {
             console.log("gagal");
           }
@@ -173,7 +159,18 @@ export default {
     },
   },
   mounted() {
-    this.populateMenu();
+    console.log("host populate")
+    this.populateHost();
   },
 };
 </script>
+
+<style>
+#host {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: left;
+  color: #2c3e50;
+}
+</style>

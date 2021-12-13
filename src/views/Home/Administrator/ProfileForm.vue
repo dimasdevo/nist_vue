@@ -2,10 +2,6 @@
   <div id="profile-form">
     <v-dialog
       v-model="dialog"
-      fullscreen
-      hide-overlay
-      transition="dialog-bottom-transition"
-      scrollable
     >
       <v-card tile>
         <v-card-title class="text-h5"> {{ this.title }} </v-card-title>
@@ -36,11 +32,6 @@
                       <v-row>
                         <v-col>
                           <div>
-                            <v-text-field
-                              label="ID PROFILE"
-                              v-model="profile.i_profl"
-                            ></v-text-field>
-
                             <v-text-field
                               label="JUDUL PROFILE"
                               v-model="profile.n_profl"

@@ -76,7 +76,7 @@
         </v-row>
     </v-container>
     </v-main>
-    <v-snackbar v-model="snackbar" :timeout="timeout" color="green" rounded>
+    <v-snackbar v-model="snackbar" :timeout="timeout" color="red" rounded>
       {{ text }}
 
       <template v-slot:action="{ attrs }">

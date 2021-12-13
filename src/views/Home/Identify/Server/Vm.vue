@@ -1,12 +1,12 @@
 <template>
   <div class="container">
-    <h1 class="mb-4">Daftar Menu</h1>
+    <h1 class="mb-4">Daftar VM</h1>
     <hr />
     <v-btn dark class="ma-1">
       <span>Import</span>
       <v-icon right>mdi-file-import</v-icon>
     </v-btn>
-    <v-menu offset-y>
+    <v-menu  offset-y>
       <template v-slot:activator="{ on, attrs }">
         <v-btn dark class="ma-1" v-bind="attrs" v-on="on">
           <span>Export</span>
@@ -16,14 +16,14 @@
       <v-list>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="menus" name="menus.xls">
+            <download-excel :data="vms" name="vms.xls">
               Export To XLS
             </download-excel>
           </v-list-item-title>
         </v-list-item>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="menus" type="csv" name="menus.csv">
+            <download-excel :data="vms" type="csv" name="vms.csv">
               Export To CSV
             </download-excel>
           </v-list-item-title>
@@ -40,12 +40,12 @@
       <span>Add</span>
       <v-icon right>mdi-plus</v-icon>
     </v-btn>
-    <menu-table v-bind:menus="menus" />
-    <menu-form
-      ref="menuForm"
-      @edit-menu="editMenu"
-      @add-menu="addMenu"
-      @del-menu="deleteMenu"
+    <vm-table v-bind:vms="vms" />
+    <vm-form
+      ref="vmform"
+      @edit-vm="editVm"
+      @add-vm="addVm"
+      @del-vm="deleteVm"
     />
   </div>
 </template>
@@ -53,44 +53,38 @@
 import axios from "axios";
 import qs from "qs";
 
-import MenuTable from "./MenuTable.vue";
-import MenuForm from "./MenuForm.vue"; 
+import VmTable from "./VmTable.vue";
+import VmForm from "./VmForm.vue";
 
 export default {
-  name: "menu",
+  name: "Vm",
   components: {
-    MenuTable,
-    MenuForm
+    VmTable,
+    VmForm
   },
   data() {
     return {
-      menus: [],
+      vms: [],
     };
   },
   methods: {
     openAddDialog() {
-      this.$refs.menuForm.openDialogAdd();
+      this.$refs.vmform.openDialogAdd();
     },
     openEditDialog(data) {
-      this.$refs.menuForm.openDialogEdit(data);
+      this.$refs.vmform.openDialogEdit(data);
     },
     openDeleteDialog(data) {
-      this.$refs.menuForm.openDialogDelete(data);
+      this.$refs.vmform.openDialogDelete(data);
     },
-    editProfile(id, profile) {
+    editVm(id, vm) {
       let it = this;
       let data = {
-        i_emp: profile.i_emp,
-        n_emp: profile.n_emp,
-        c_org_cur: profile.c_org_cur,
-        i_emp_email: profile.i_emp_email,
-        i_update: this.i_entry,
-        i_profl:JSON.stringify(profile.i_profl)
+        n_server_clu: vm.n_server_clu,
       };
-      console.log(qs.stringify(data));
       let options = {
         method: "PUT",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/server/vm`,
         params: { id: id },
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         data: qs.stringify(data),
@@ -100,46 +94,45 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateProfile();
+          it.populateVm();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    addProfile(profile) {
+    addVm(vm, vmdns) {
       let it = this;
       let formData = new FormData();
-      formData.append("i_emp", profile.i_emp);
-      formData.append("n_emp", profile.n_emp);
-      formData.append("i_emp_email", profile.i_emp_email);
-      formData.append("c_org_cur", profile.c_org_cur);
-      formData.append("i_profl",JSON.stringify(profile.i_profl));
-      formData.append("i_entry", this.i_entry);
+      formData.append("n_server_vm", vm.n_server_vm);
+      formData.append("e_server_vm", vm.e_server_vm);
+      formData.append("n_server_vmcls", vm.n_server_vmcls);
+      formData.append("c_server_clu", vm.c_server_clu);
+      formData.append("c_server_host", vm.c_server_host);
+      formData.append("c_stor_ds", vm.c_stor_ds);
+      formData.append("n_server_vmos", vm.n_server_vmos);
+      formData.append("c_server_vmdns", JSON.stringify(vmdns));
       let options = {
         method: "post",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/server/vm`,
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
 
-      let response = axios
+      axios
         .request(options)
         .then(function (response) {
-          if(response.status=='200'){
-            it.populateProfile();  
-            return response;
-          }
+          console.log(response.data);
+          it.populateVm();
         })
         .catch(function (error) {
           console.error(error);
         });
-      console.log(response);
     },
-    deleteProfile(id) {
+    deleteVm(id) {
       let it = this;
       let options = {
         method: "DELETE",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/server/vm`,
         params: { id: id },
       };
 
@@ -147,22 +140,22 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateProfile();
+          it.populateVm();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    async populateMenu() {
+    populateVm() {
       var self = this;
-      await axios({
+      axios({
         method: "GET",
-        url: `${process.env.VUE_APP_API_NIST}/menu`,
+        url: `${process.env.VUE_APP_API_NIST}/server/vm`,
       })
         .then(function (response) {
           if (response.status === 200) {
-            let data = response.data;            
-            self.menus = data;
+            let data = response.data;
+            self.vms = data;
           } else {
             console.log("gagal");
           }
@@ -173,7 +166,18 @@ export default {
     },
   },
   mounted() {
-    this.populateMenu();
+    console.log("vm populate")
+    this.populateVm();
   },
 };
 </script>
+
+<style>
+#vm {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: left;
+  color: #2c3e50;
+}
+</style>

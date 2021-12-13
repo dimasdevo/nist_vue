@@ -2,10 +2,6 @@
   <div id="user-form">
     <v-dialog
       v-model="dialog"
-      fullscreen
-      hide-overlay
-      transition="dialog-bottom-transition"
-      scrollable
     >
       <v-card tile>
         <v-card-title class="text-h5"> {{ this.title }} </v-card-title>
