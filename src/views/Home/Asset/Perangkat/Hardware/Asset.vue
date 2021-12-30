@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="mb-4">Daftar Profile</h1>
+    <h1 class="mb-4">Daftar Perangkat Keras</h1>
     <hr />
     <v-btn dark class="ma-1">
       <span>Import</span>
@@ -16,16 +16,12 @@
       <v-list>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="profiles" name="profiles.xls">
-              Export To XLS
-            </download-excel>
+            <download-excel :data="assets" name="asset.xls"> Export To XLS </download-excel>
           </v-list-item-title>
         </v-list-item>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="profiles" type="csv" name="profiles.csv">
-              Export To CSV
-            </download-excel>
+            <download-excel :data="assets" type="csv" name="asset.csv"> Export To CSV </download-excel>
           </v-list-item-title>
         </v-list-item>
       </v-list>
@@ -36,63 +32,65 @@
       <v-icon right>mdi-filter</v-icon>
     </v-btn>
     <v-divider vertical></v-divider>
-    <v-btn dark @click="openAddDialog" class="ma-1">
+    <v-btn dark @click="openAddDialog" class="ma-1" v-if="menuauth.f_add=='1'">
       <span>Add</span>
       <v-icon right>mdi-plus</v-icon>
     </v-btn>
-    <profile-table v-bind:profiles="profiles" />
-    <profile-form
-      ref="profileForm"
-      @edit-profile="editProfile"
-      @add-profile="addProfile"
-      @del-profile="deleteProfile"
+    <asset-table v-bind:assets="assets" v-bind:menuauth="menuauth"/>
+    <asset-form
+      ref="assetform"
+      @edit-asset="editAsset"
+      @add-asset="addAsset"
+      @del-asset="deleteAsset"
     />
   </div>
 </template>
 <script>
+import AssetForm from "./AssetForm.vue";
+import AssetTable from "./AssetTable.vue";
+
 import axios from "axios";
 import qs from "qs";
-
-import ProfileTable from "./ProfileTable.vue";
-import ProfileForm from "./ProfileForm.vue";
 export default {
-  name: "profile",
+  name: "Asset",
   components: {
-    ProfileTable,
-    ProfileForm
+    AssetTable,
+    AssetForm,
   },
   data() {
     return {
+       menuauth:{
+        f_add:'0',
+        f_edit:'0',
+        f_delete:'0',
+      },
       i_entry:"",
-      profiles: [],
-      headers: [
-        { text: "Nama", value: "n_profl", align: "start" },
-        { text: "Deskripsi", value: "e_profl" },
-        { text: "Date Entry", value: "d_entry" },
-      ],
+      assets: [],
     };
   },
   methods: {
     openAddDialog() {
-      this.$refs.profileForm.openDialogAdd();
+      this.$refs.assetform.openDialogAdd();
     },
     openEditDialog(data) {
-      this.$refs.profileForm.openDialogEdit(data);
+      this.$refs.assetform.openDialogEdit(data);
     },
     openDeleteDialog(data) {
-      this.$refs.profileForm.openDialogDelete(data);
+      this.$refs.assetform.openDialogDelete(data);
     },
-    editProfile(id, profile) {
+    editAsset(id, asset) {
       let it = this;
       let data = {
-        n_profl: profile.n_profl,
-        e_profl: profile.e_profl,
-        i_update: this.i_entry,
-        i_menu:JSON.stringify(profile.i_menu)
+        n_asset: asset.n_asset,
+        i_asset_sn: asset.i_asset_sn,
+        i_asset_inv: asset.i_asset_inv,
+        n_asset_type: asset.n_asset_type,
+        a_asset: asset.a_asset,
+        e_asset_note: asset.e_asset_note,
       };
       let options = {
         method: "PUT",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/asset`,
         params: { id: id },
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         data: qs.stringify(data),
@@ -100,46 +98,45 @@ export default {
 
       axios
         .request(options)
-        .then(()=>{
-          it.populateProfile();
-          }
-        )
-        .catch(function (error) {
-          console.error(error);
-        });
-    },
-    addProfile(profile) {
-      let it = this;
-      let formData = new FormData();
-      formData.append("n_profl", profile.n_profl);
-      formData.append("e_profl", profile.e_profl);
-      formData.append("i_menu",JSON.stringify(profile.i_menu));
-      formData.append("i_entry", this.i_entry);
-      let options = {
-        method: "post",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
-        headers: { "Content-Type": "multipart/form-data" },
-        data: formData,
-      };
-
-      let response = axios
-        .request(options)
         .then(function (response) {
-          if(response.status=='200'){
-            it.populateProfile();  
-            return response;
-          }
+          console.log(response.data);
+          it.populateAsset();
         })
         .catch(function (error) {
           console.error(error);
         });
-      console.log(response);
     },
-    deleteProfile(id) {
+    addAsset(asset) {
+      let it = this;
+      let formData = new FormData();
+      formData.append("n_asset", asset.n_asset);
+      formData.append("i_asset_sn", asset.i_asset_sn);
+      formData.append("i_asset_inv", asset.i_asset_inv);
+      formData.append("n_asset_type", asset.n_asset_type);
+      formData.append("a_asset", asset.a_asset);
+      formData.append("e_asset_note", asset.e_asset_note);
+      let options = {
+        method: "post",
+        url: `${process.env.VUE_APP_API_NIST}/asset`,
+        headers: { "Content-Type": "multipart/form-data" },
+        data: formData,
+      };
+
+      axios
+        .request(options)
+        .then(function (response) {
+          console.log(response.data);
+          it.populateAsset();
+        })
+        .catch(function (error) {
+          console.error(error);
+        });
+    },
+    deleteAsset(id) {
       let it = this;
       let options = {
         method: "DELETE",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/asset`,
         params: { id: id },
       };
 
@@ -147,22 +144,23 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateProfile();
+          it.populateAsset();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    async populateProfile() {
+    populateAsset() {
       var self = this;
-      await axios({
+      axios({
         method: "GET",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/asset`,
       })
         .then(function (response) {
           if (response.status === 200) {
-            let data = response.data;            
-            self.profiles = data;
+            let data = response.data;
+            self.assets = data;
+            console.log(data)
           } else {
             console.log("gagal");
           }
@@ -174,8 +172,20 @@ export default {
   },
   mounted() {
     let user = JSON.parse( this.$store.getters.user);
+    let menuauth = JSON.parse( this.$store.getters.menuAuth);
+    this.menuauth = menuauth.filter((element)=>{return element.id=='5'})[0];
     this.i_entry =  user.i_user;
-    this.populateProfile();
+    this.populateAsset();
   },
 };
 </script>
+
+<style>
+#asset {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: left;
+  color: #2c3e50;
+}
+</style>

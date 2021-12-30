@@ -1,12 +1,12 @@
 <template>
   <div class="container">
-    <h1 class="mb-4">Daftar Profile</h1>
+    <h1 class="mb-4">Daftar Cluster</h1>
     <hr />
     <v-btn dark class="ma-1">
       <span>Import</span>
       <v-icon right>mdi-file-import</v-icon>
     </v-btn>
-    <v-menu offset-y>
+    <v-menu  offset-y>
       <template v-slot:activator="{ on, attrs }">
         <v-btn dark class="ma-1" v-bind="attrs" v-on="on">
           <span>Export</span>
@@ -16,14 +16,14 @@
       <v-list>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="profiles" name="profiles.xls">
+            <download-excel :data="clusters" name="clusters.xls">
               Export To XLS
             </download-excel>
           </v-list-item-title>
         </v-list-item>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="profiles" type="csv" name="profiles.csv">
+            <download-excel :data="clusters" type="csv" name="clusters.csv">
               Export To CSV
             </download-excel>
           </v-list-item-title>
@@ -36,16 +36,21 @@
       <v-icon right>mdi-filter</v-icon>
     </v-btn>
     <v-divider vertical></v-divider>
-    <v-btn dark @click="openAddDialog" class="ma-1">
+    <v-btn dark @click="openAddDialog" class="ma-1" v-if="menuauth.f_add=='1'">
       <span>Add</span>
       <v-icon right>mdi-plus</v-icon>
     </v-btn>
-    <profile-table v-bind:profiles="profiles" />
-    <profile-form
-      ref="profileForm"
-      @edit-profile="editProfile"
-      @add-profile="addProfile"
-      @del-profile="deleteProfile"
+    <v-divider vertical></v-divider>
+    <v-btn dark @click="refresh" class="ma-1">
+      <span>Refresh</span>
+      <v-icon right>mdi-cloud-refresh</v-icon>
+    </v-btn>
+    <cluster-table v-bind:clusters="clusters" v-bind:menuauth="menuauth" v-bind:loading="loading" />
+    <cluster-form
+      ref="clusterform"
+      @edit-cluster="editCluster"
+      @add-cluster="addCluster"
+      @del-cluster="deleteCluster"
     />
   </div>
 </template>
@@ -53,46 +58,47 @@
 import axios from "axios";
 import qs from "qs";
 
-import ProfileTable from "./ProfileTable.vue";
-import ProfileForm from "./ProfileForm.vue";
+import ClusterTable from "./ClusterTable.vue";
+import ClusterForm from "./ClusterForm.vue";
+
 export default {
-  name: "profile",
+  name: "Cluster",
   components: {
-    ProfileTable,
-    ProfileForm
+    ClusterTable,
+    ClusterForm
   },
   data() {
     return {
+      menuauth:{
+        f_add:'0',
+        f_edit:'0',
+        f_delete:'0',
+      },
       i_entry:"",
-      profiles: [],
-      headers: [
-        { text: "Nama", value: "n_profl", align: "start" },
-        { text: "Deskripsi", value: "e_profl" },
-        { text: "Date Entry", value: "d_entry" },
-      ],
+      clusters: [],
+      loading:false
     };
   },
   methods: {
     openAddDialog() {
-      this.$refs.profileForm.openDialogAdd();
+      this.$refs.clusterform.openDialogAdd();
     },
     openEditDialog(data) {
-      this.$refs.profileForm.openDialogEdit(data);
+      this.$refs.clusterform.openDialogEdit(data);
     },
     openDeleteDialog(data) {
-      this.$refs.profileForm.openDialogDelete(data);
+      this.$refs.clusterform.openDialogDelete(data);
     },
-    editProfile(id, profile) {
+    editCluster(id, cluster) {
+      this.loading=true;
       let it = this;
       let data = {
-        n_profl: profile.n_profl,
-        e_profl: profile.e_profl,
-        i_update: this.i_entry,
-        i_menu:JSON.stringify(profile.i_menu)
+        n_server_clu: cluster.n_server_clu,
+        i_update: this.i_entry
       };
       let options = {
         method: "PUT",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/server/cluster`,
         params: { id: id },
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         data: qs.stringify(data),
@@ -100,46 +106,47 @@ export default {
 
       axios
         .request(options)
-        .then(()=>{
-          it.populateProfile();
-          }
-        )
-        .catch(function (error) {
-          console.error(error);
-        });
-    },
-    addProfile(profile) {
-      let it = this;
-      let formData = new FormData();
-      formData.append("n_profl", profile.n_profl);
-      formData.append("e_profl", profile.e_profl);
-      formData.append("i_menu",JSON.stringify(profile.i_menu));
-      formData.append("i_entry", this.i_entry);
-      let options = {
-        method: "post",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
-        headers: { "Content-Type": "multipart/form-data" },
-        data: formData,
-      };
-
-      let response = axios
-        .request(options)
         .then(function (response) {
-          if(response.status=='200'){
-            it.populateProfile();  
-            return response;
-          }
+          console.log(response.data);
+          it.populateCluster();
+          self.loading = false;
         })
         .catch(function (error) {
           console.error(error);
         });
-      console.log(response);
     },
-    deleteProfile(id) {
+    addCluster(cluster) {
+      this.loading=true;
+      let it = this;
+      let formData = new FormData();
+      console.log(this.i_entry);
+      formData.append("n_server_clu", cluster.n_server_clu);
+      formData.append("i_entry",this.i_entry);
+      formData.append("i_update",this.i_entry);
+      let options = {
+        method: "post",
+        url: `${process.env.VUE_APP_API_NIST}/server/cluster`,
+        headers: { "Content-Type": "multipart/form-data" },
+        data: formData,
+      };
+
+      axios
+        .request(options)
+        .then(function (response) {
+          console.log(response.data);
+          it.populateCluster();
+          self.loading = false;
+        })
+        .catch(function (error) {
+          console.error(error);
+        });
+    },
+    deleteCluster(id) {
+      this.loading=true;
       let it = this;
       let options = {
         method: "DELETE",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/server/cluster`,
         params: { id: id },
       };
 
@@ -147,35 +154,53 @@ export default {
         .request(options)
         .then(function (response) {
           console.log(response.data);
-          it.populateProfile();
+          it.populateCluster();
+          self.loading = false;
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    async populateProfile() {
+    populateCluster() {
       var self = this;
-      await axios({
+      this.loading=true;
+      axios({
         method: "GET",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/server/cluster`,
       })
         .then(function (response) {
           if (response.status === 200) {
-            let data = response.data;            
-            self.profiles = data;
+            let data = response.data;
+            self.clusters = data;
           } else {
             console.log("gagal");
           }
+          self.loading = false;
         })
         .catch(function (error) {
           console.log(error);
         });
     },
+    refresh(){
+      this.populateCluster();
+    }
   },
   mounted() {
     let user = JSON.parse( this.$store.getters.user);
+    let menuauth = JSON.parse( this.$store.getters.menuAuth);
+    this.menuauth = menuauth.filter((element)=>{return element.id=='61'})[0];
     this.i_entry =  user.i_user;
-    this.populateProfile();
+    this.populateCluster();
   },
 };
 </script>
+
+<style>
+#cluster {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: left;
+  color: #2c3e50;
+}
+</style>

@@ -10,7 +10,7 @@
       </template>
       <template v-slot:[`item.i_menu_root`]="{item}">
         <v-chip
-        :color=red
+        color="red"
         dark
         v-if="item.i_menu_root=='-'"
         >
@@ -27,12 +27,13 @@
   </v-card>
 </template>
 <script>
-import axios from "axios";
 export default {
   name: "menu",
+  props:{
+    menus: Array
+  },
   data() {
     return {
-      menus: [],
       headers: [
         { text: "Root", value: "i_menu_root", align: "start" },
         { text: "Nama", value: "n_menu" },
@@ -44,27 +45,14 @@ export default {
     };
   },
   methods: {
-    async populateMenu() {
-      var self = this;
-      await axios({
-        method: "GET",
-        url: `${process.env.VUE_APP_API_NIST}/menu`,
-      })
-        .then(function (response) {
-          if (response.status === 200) {
-            let data = response.data;            
-            self.menus = data;
-          } else {
-            console.log("gagal");
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    },
-  },
-  mounted() {
-    this.populateMenu();
+    editMenu(menu){
+        let data = Object.assign({},menu)
+        this.$parent.openEditDialog(data);
+      },
+    deleteMenu(menu){
+      let data = Object.assign({},menu)
+      this.$parent.openDeleteDialog(data);
+    }
   },
 };
 </script>

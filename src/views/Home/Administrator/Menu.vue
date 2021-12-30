@@ -64,6 +64,7 @@ export default {
   },
   data() {
     return {
+      i_entry:"",
       menus: [],
     };
   },
@@ -77,20 +78,21 @@ export default {
     openDeleteDialog(data) {
       this.$refs.menuForm.openDialogDelete(data);
     },
-    editProfile(id, profile) {
-      let it = this;
+    editMenu(id, menu) {
+      let self = this;
       let data = {
-        i_emp: profile.i_emp,
-        n_emp: profile.n_emp,
-        c_org_cur: profile.c_org_cur,
-        i_emp_email: profile.i_emp_email,
+        n_menu: menu.n_menu,
+        i_menu_link: menu.i_menu_link,
+        i_menu_icon: menu.i_menu_icon,
+        i_menu_root: menu.i_menu_root,
+        i_menu_ord: menu.i_menu_ord,
+        i_menu_lvl: menu.i_menu_lvl,
+        c_menu_type: menu.c_menu_type,
         i_update: this.i_entry,
-        i_profl:JSON.stringify(profile.i_profl)
       };
-      console.log(qs.stringify(data));
       let options = {
         method: "PUT",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/menu`,
         params: { id: id },
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         data: qs.stringify(data),
@@ -98,56 +100,52 @@ export default {
 
       axios
         .request(options)
-        .then(function (response) {
-          console.log(response.data);
-          it.populateProfile();
+        .then(()=>{
+          self.populateMenu();
         })
         .catch(function (error) {
           console.error(error);
         });
     },
-    addProfile(profile) {
-      let it = this;
+    addMenu(menu) {
+      let self = this;
       let formData = new FormData();
-      formData.append("i_emp", profile.i_emp);
-      formData.append("n_emp", profile.n_emp);
-      formData.append("i_emp_email", profile.i_emp_email);
-      formData.append("c_org_cur", profile.c_org_cur);
-      formData.append("i_profl",JSON.stringify(profile.i_profl));
+      formData.append("n_menu", menu.n_menu);
+      formData.append("i_menu_link", menu.i_menu_link);
+      formData.append("i_menu_icon", menu.i_menu_icon);
+      formData.append("i_menu_root", menu.i_menu_root);
+      formData.append("i_menu_ord", menu.i_menu_ord);
+      formData.append("i_menu_lvl", menu.i_menu_lvl);
+      formData.append("c_menu_type", menu.c_menu_type);
       formData.append("i_entry", this.i_entry);
       let options = {
         method: "post",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/menu`,
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
 
-      let response = axios
+      axios
         .request(options)
-        .then(function (response) {
-          if(response.status=='200'){
-            it.populateProfile();  
-            return response;
-          }
+        .then(()=> {
+          self.populateMenu();  
         })
         .catch(function (error) {
           console.error(error);
         });
-      console.log(response);
     },
-    deleteProfile(id) {
-      let it = this;
+    deleteMenu(id) {
+      let self = this;
       let options = {
         method: "DELETE",
-        url: `${process.env.VUE_APP_API_NIST}/profile`,
+        url: `${process.env.VUE_APP_API_NIST}/menu`,
         params: { id: id },
       };
 
       axios
         .request(options)
-        .then(function (response) {
-          console.log(response.data);
-          it.populateProfile();
+        .then(()=> {
+          self.populateMenu();
         })
         .catch(function (error) {
           console.error(error);
@@ -173,6 +171,8 @@ export default {
     },
   },
   mounted() {
+    let user = JSON.parse( this.$store.getters.user);
+    this.i_entry =  user.i_user;
     this.populateMenu();
   },
 };

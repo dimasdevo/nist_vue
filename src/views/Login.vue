@@ -154,7 +154,7 @@ export default {
           if (response.status == "200") {
             let user = response.data[0];
             console.log(response);
-            vm.saveUser(user);
+            vm.menuBar(user);
           }
         })
         .catch(function (error) {
@@ -164,10 +164,54 @@ export default {
           vm.snackbar=true;
         });
     },
-    saveUser(user) {
-      let data = JSON.stringify(user);
-      this.$store.commit("setUser", data);
-      this.$cookie.set("user", data, "7200");
+    menuBar(user) {
+      var self = this;
+      let id = user.i_user;
+      axios({
+        method: "GET",
+        url: `${process.env.VUE_APP_API_NIST}/menu/user/${id}`,
+      })
+        .then(function (response) {
+          if (response.status === 200) {
+            let menu = response.data;
+            self.menuAuth(user,menu);
+          } else {
+            console.log("gagal");
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    },
+    menuAuth(user,menu){
+      var self = this;
+      let id = user.i_user;
+      axios({
+        method: "GET",
+        url: `${process.env.VUE_APP_API_NIST}/menu/usertable/${id}`,
+      })
+        .then(function (response) {
+          if (response.status === 200) {
+            let menuauth = response.data;
+            self.saveUser(user,menu, menuauth);
+          } else {
+            console.log("gagal");
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    },
+    saveUser(user,menu, menuauth) {
+      menu = JSON.stringify(menu);
+      this.$store.commit("setMenu", menu);
+      menuauth = JSON.stringify(menuauth);
+      this.$store.commit("setMenuAuth", menuauth);
+      user = JSON.stringify(user);
+      this.$store.commit("setUser", user);
+      console.log(user);
+      console.log(menu);
+      console.log(menuauth);
     },
   },
 };

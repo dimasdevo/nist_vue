@@ -225,6 +225,7 @@ export default {
       this.clearData();
     },
     deleteItemConfirm(){
+      this.snackbar = true;
       this.text = "Succesfull deleting user";
       this.$emit("del-user", this.user.i_user);
       this.clearData();
