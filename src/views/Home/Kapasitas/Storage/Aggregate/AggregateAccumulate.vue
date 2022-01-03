@@ -115,12 +115,16 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateAggregateAccumulate();
+          if(response.status>= 200 && response.status < 400){
+            self.$refs.aggregateaccform.showSnackBar(1,"Succesfull update aggregate accumulate");
+            self.populateAggregateAccumulate();
+          }else{
+            self.$refs.aggregateaccform.showSnackBar(0,"Failed update aggregate accumulate");
+          }
           self.loading=false;
-        })
-        .catch(function (error) {
-          console.error(error);
+        }).catch(()=> {
+          self.$refs.aggregateaccform.showSnackBar(0,"Failed update aggregate accumulate");
+          self.loading=false;
         });
     },
     addAggregateAccumulate(accumulate) {
@@ -147,12 +151,17 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateAggregateAccumulate();
+         if(response.status>= 200 && response.status < 400){
+            self.$refs.aggregateaccform.showSnackBar(1,"Succesfull add aggregate accumulate");
+            self.populateAggregateAccumulate();
+          }else{
+            console.log("Failed")
+            self.$refs.aggregateaccform.showSnackBar(0,"Failed add aggregate accumulate");
+          }
           self.loading=false;
-        })
-        .catch(function (error) {
-          console.error(error);
+        }).catch(()=> {
+          self.$refs.aggregateaccform.showSnackBar(0,"Failed add aggregate accumulate");
+          self.loading=false;
         });
     },
     deleteAggregateAccumulate(id) {
@@ -167,12 +176,16 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateAggregateAccumulate();
+          if(response.status>= 200 && response.status < 400){
+            self.$refs.aggregateaccform.showSnackBar(1,"Succesfull delete aggregate accumulate");
+            self.populateAggregateAccumulate();
+          }else{
+            self.$refs.aggregateaccform.showSnackBar(0,"Failed delete aggregate accumulate");
+          }
           self.loading=false;
-        })
-        .catch(function (error) {
-          console.error(error);
+        }).catch(()=> {
+          self.$refs.aggregateaccform.showSnackBar(0,"Failed delete aggregate accumulate");
+          self.loading=false;
         });
     },
     populateAggregateAccumulate() {
@@ -185,17 +198,12 @@ export default {
         params: { id: this.id_aggregate.c_stor_aggr },
       })
         .then(function (response) {
-          if (response.status === 200) {
+          if (response.status>= 200 && response.status < 400) {
             let data = response.data;
             self.aggregateaccs = data;
             self.loading=false;
-          } else {
-            console.log("gagal");
-          }
+          } 
           self.loading=false;
-        })
-        .catch(function (error) {
-          console.log(error);
         });
     },
     refresh(){

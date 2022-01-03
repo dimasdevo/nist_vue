@@ -110,12 +110,17 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateDatastoreAccumulate();
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.datastoreaccform.showSnackBar(1,"Succesfull edit datastore accumulate");
+              self.populateDatastoreAccumulate();
+          }else{
+            self.$refs.datastoreaccform.showSnackBar(0,"Failed edit datastore accumulate");
+          }
           self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.datastoreaccform.showSnackBar(0,"Failed edit datastore accumulate");
+          self.loading=false;
         });
     },
     addDatastoreAccumulate(accumulate) {
@@ -138,12 +143,17 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateDatastoreAccumulate();
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.datastoreaccform.showSnackBar(1,"Succesfull add datastore accumulate");
+              self.populateDatastoreAccumulate();
+          }else{
+            self.$refs.datastoreaccform.showSnackBar(0,"Failed add datastore accumulate");
+          }
           self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.datastoreaccform.showSnackBar(0,"Failed add datastore accumulate");
+          self.loading=false;
         });
     },
     deleteDatastoreAccumulate(id) {
@@ -158,12 +168,17 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateDatastoreAccumulate();
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.datastoreaccform.showSnackBar(1,"Succesfull delete datastore accumulate");
+              self.populateDatastoreAccumulate();
+          }else{
+            self.$refs.datastoreaccform.showSnackBar(0,"Failed delete datastore accumulate");
+          }
           self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.datastoreaccform.showSnackBar(0,"Failed delete datastore accumulate");
+          self.loading=false;
         });
     },
     populateDatastoreAccumulate() {
@@ -180,13 +195,8 @@ export default {
             let data = response.data;
             self.datastoreaccs = data;
             self.loading=false;
-          } else {
-            console.log("gagal");
           }
           self.loading=false;
-        })
-        .catch(function (error) {
-          console.log(error);
         });
     },
     refresh(){

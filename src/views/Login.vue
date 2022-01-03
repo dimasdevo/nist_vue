@@ -209,9 +209,6 @@ export default {
       this.$store.commit("setMenuAuth", menuauth);
       user = JSON.stringify(user);
       this.$store.commit("setUser", user);
-      console.log(user);
-      console.log(menu);
-      console.log(menuauth);
     },
   },
 };

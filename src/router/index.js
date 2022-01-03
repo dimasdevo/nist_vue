@@ -18,6 +18,8 @@ import User from '../views/Home/Administrator/User.vue'
 import Menu from '../views/Home/Administrator/Menu.vue'
 import Profile from '../views/Home/Administrator/Profile.vue'
 import Test from '../views/Home/Administrator/Test.vue'
+import page_404 from '../views/Error/404.vue'
+import page_403 from '../views/Error/403.vue'
 
 Vue.use(VueRouter)
 
@@ -30,6 +32,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
+    alias: '/',
     component: Home
   },
   {
@@ -40,78 +43,133 @@ const routes = [
   {
     path: '/asset/perangkat/hardware',
     name: 'Perangkat-Keras',
-    component: Asset
+    component: Asset,
+    meta: {
+      requiresAuth: true,
+    }
   },
   
   {
     path: '/asset/server/cluster',
     name: 'Asset-Server-Cluster',
-    component: Asset_Server_Cluster
+    component: Asset_Server_Cluster,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: '/asset/server/host',
     name: 'Asset-Server-Host',
-    component: Asset_Server_Host
+    component: Asset_Server_Host,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: '/asset/server/vm',
     name: 'Asset-Server-Vm',
-    component: Asset_Server_Vm
+    component: Asset_Server_Vm,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: '/asset/storage/aggregate',
     name: 'asset-storage-aggregate',
-    component: Asset_Storage_aggregate
+    component: Asset_Storage_aggregate,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: '/asset/storage/volume',
     name: 'asset-storage-volume',
-    component: Asset_Storage_volume
+    component: Asset_Storage_volume,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: '/asset/storage/lun',
     name: 'asset-storage-lun',
-    component: Asset_Storage_lun
+    component: Asset_Storage_lun,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: '/asset/storage/datastore',
     name: 'asset-storage-Datastore',
-    component: Asset_Storage_datastore
+    component: Asset_Storage_datastore,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: '/capacity/storage/aggregate',
     name: 'capacity-storage-aggregate',
-    component: Capacity_Storage_aggregate
+    component: Capacity_Storage_aggregate,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: '/capacity/storage/volume',
     name: 'capacity-storage-volume',
-    component: Capacity_Storage_volume
+    component: Capacity_Storage_volume,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: '/capacity/storage/lun',
     name: 'capacity-storage-lun',
-    component: Capacity_Storage_lun
+    component: Capacity_Storage_lun,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: '/capacity/storage/datastore',
     name: 'capacity-storage-datastore',
-    component: Capacity_Storage_datastore
+    component: Capacity_Storage_datastore,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: '/adminstration/user',
     name: 'User',
-    component: User
+    component: User,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: '/adminstration/menu',
     name: 'Menu',
-    component: Menu
+    component: Menu,
+    meta: {
+      requiresAuth: true,
+    }
   },
   {
     path: '/adminstration/profile',
     name: 'Profile',
-    component: Profile
+    component: Profile,
+    meta: {
+      requiresAuth: true,
+    }
+  },
+  {
+    path: '/:catchAll(.*)',
+    name: '404',
+    component: page_404
+  },
+  {
+    path: '/forbidden',
+    name: '403',
+    component: page_403
   },
 ]
 
@@ -120,5 +178,29 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
+
+router.beforeEach((to,from, next)=>{
+    //CEK APAKAH MASUK HALAMAN UTAMA
+    if(to.meta.requiresAuth){
+      console.log("need Login")
+      let menuauth = JSON.parse( localStorage.getItem('menuAuth'));
+      if(menuauth.length>0){
+        console.log(menuauth);
+        let menufound = menuauth.filter((element)=>{
+          return element.link==to.path;
+        })
+        if(menufound.length>0){
+          next();
+        }else{
+          next({ name: '403' })
+        }
+      }else{
+        next({ name: '403' })
+      }
+    }else{
+      next()
+    }
+ }
+)
 
 export default router;

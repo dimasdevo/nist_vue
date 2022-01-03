@@ -111,12 +111,17 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateVolumeAccumulate();
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.volumeaccform.showSnackBar(1,"Succesfull edit volume accumulate");
+              self.populateVolumeAccumulate();
+          }else{
+            self.$refs.volumeaccform.showSnackBar(0,"Failed edit volume accumulate");
+          }
           self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.volumeaccform.showSnackBar(0,"Failed edit volume accumulate");
+          self.loading=false;
         });
     },
     addVolumeAccumulate(accumulate) {
@@ -139,12 +144,17 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateVolumeAccumulate();
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.volumeaccform.showSnackBar(1,"Succesfull add volume accumulate");
+              self.populateVolumeAccumulate();
+          }else{
+            self.$refs.volumeaccform.showSnackBar(0,"Failed add volume accumulate");
+          }
           self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.volumeaccform.showSnackBar(0,"Failed add volume accumulate");
+          self.loading=false;
         });
     },
     deleteVolumeAccumulate(id) {
@@ -159,12 +169,17 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateVolumeAccumulate();
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.volumeaccform.showSnackBar(1,"Succesfull delete volume accumulate");
+              self.populateVolumeAccumulate();
+          }else{
+            self.$refs.volumeaccform.showSnackBar(0,"Failed delete volume accumulate");
+          }
           self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.volumeaccform.showSnackBar(0,"Failed delete volume accumulate");
+          self.loading=false;
         });
     },
     populateVolumeAccumulate() {

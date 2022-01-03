@@ -12,7 +12,7 @@
                 placeholder="Input Data"
                 v-model="aggregateaccs.q_stor_data"
                 type="number"
-                :rules="[(v) => !!v || 'Item is required']"
+                :rules="[(v) => (!isNaN(parseFloat(v)) && v >= 0) ||'Item must number']"
                 filled
               >
               </v-text-field>
@@ -23,7 +23,7 @@
                 placeholder="Input Snapshot"
                 v-model="aggregateaccs.q_stor_snapshot"
                 type="number"
-                :rules="[(v) => !!v || 'Item is required']"
+                :rules="[(v) => (!isNaN(parseFloat(v)) && v >= 0) ||'Item must number']"
                 filled
               >
               </v-text-field>
@@ -34,7 +34,7 @@
                 placeholder="Input Replication"
                 v-model="aggregateaccs.q_stor_replcn"
                 type="number"
-                :rules="[(v) => !!v || 'Item is required']"
+                :rules="[(v) => (!isNaN(parseFloat(v)) && v >= 0) ||'Item must number']"
                 filled
               >
               </v-text-field>
@@ -45,7 +45,7 @@
                 placeholder="Input Footprint"
                 v-model="aggregateaccs.q_stor_footprint"
                 type="number"
-                :rules="[(v) => !!v || 'Item is required']"
+                :rules="[(v) => (!isNaN(parseFloat(v)) && v >= 0) ||'Item must number']"
                 filled
               >
               </v-text-field>
@@ -126,7 +126,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-    <v-snackbar v-model="snackbar" :timeout="timeout" color="green" rounded>
+    <v-snackbar v-model="snackbar" :timeout="timeout" :color="color" rounded>
       {{ text }}
 
       <template v-slot:action="{ attrs }">
@@ -143,7 +143,8 @@ export default {
   data() {
     return {
       snackbar: false,
-      items: ['Foo', 'Bar', 'Fizz', 'Buzz'],
+      items: [],
+      color:"green",
       text: "",
       timeout: 2000,
       type: "add",
@@ -168,7 +169,9 @@ export default {
     date_agg:{
       get:function () {
         let d = new Date();
-        d.setMonth(this.aggregateaccs.d_month-1);
+        let d_month = this.aggregateaccs.d_month-1; 
+        d.setUTCDate(1);
+        d.setUTCMonth(d_month);
         d.setUTCFullYear(this.aggregateaccs.d_year);
         let date = d.toISOString().substr(0, 7);
         return date;
@@ -194,17 +197,13 @@ export default {
   methods: {
     submit() {
       if (this.$refs.form.validate()) {
-        this.snackbar = true;
         switch (this.type) {
           case "edit":
-            this.text = "Succesfull updating aggregate accumulate";
             this.aggregateaccs.q_stor_used = this.total_aggr;
             this.$emit("edit-aggregate-accumulate", this.aggregateaccs.i_stor_aggracc, this.aggregateaccs);
             break;
 
          default:
-            this.aggregateaccs.q_stor_used = this.total_aggr;
-            this.text = "Succesfull adding  aggregate accumulate";
             this.$emit("add-aggregate-accumulate", this.aggregateaccs);
             break;
         }
@@ -212,10 +211,13 @@ export default {
       }
     },
     deleteItemConfirm(){
-      this.snackbar = true;
-      this.text = "Succesfull deleting aggregate accumulate";
       this.$emit("del-aggregate-accumulate", this.aggregateaccs.i_stor_aggracc);
       this.clearData();
+    },
+    showSnackBar(succes,text){
+      this.color = (succes)?"green":"red";
+      this.text = text;
+      this.snackbar = true;
     },
     closeDelete(){
       this.clearData();

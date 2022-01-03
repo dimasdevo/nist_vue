@@ -11,6 +11,7 @@
                 label="USED (TB)"
                 v-model="lunaccs.q_stor_used"
                 type="number"
+                :rules="[(v) => (!isNaN(parseFloat(v)) && v >= 0) ||'Item must number']"
                 filled                
               >
               </v-text-field>
@@ -81,7 +82,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-    <v-snackbar v-model="snackbar" :timeout="timeout" color="green" rounded>
+    <v-snackbar v-model="snackbar" :timeout="timeout" :color="color" rounded>
       {{ text }}
 
       <template v-slot:action="{ attrs }">
@@ -100,6 +101,7 @@ export default {
       snackbar: false,
       items: ['Foo', 'Bar', 'Fizz', 'Buzz'],
       text: "",
+      color:"green",
       timeout: 2000,
       type: "add",
       title: "FORMULIR TAMBAH LUN ACCUMULATE",
@@ -119,7 +121,9 @@ export default {
     date_agg:{
       get:function () {
         let d = new Date();
-        d.setMonth(this.lunaccs.d_month-1);
+        let d_month = this.lunaccs.d_month-1; 
+        d.setUTCDate(1);
+        d.setUTCMonth(d_month);
         d.setUTCFullYear(this.lunaccs.d_year);
         let date = d.toISOString().substr(0, 7);
         return date;
@@ -134,15 +138,12 @@ export default {
   methods: {
     submit() {
       if (this.$refs.form.validate()) {
-        this.snackbar = true;
         switch (this.type) {
           case "edit":
-            this.text = "Succesfull updating lun accumulate";
             this.$emit("edit-lun-accumulate", this.lunaccs.i_stor_lunacc, this.lunaccs);
             break;
 
          default:
-            this.text = "Succesfull adding  lun accumulate";
             this.$emit("add-lun-accumulate", this.lunaccs);
             break;
         }
@@ -150,10 +151,13 @@ export default {
       }
     },
     deleteItemConfirm(){
-      this.snackbar = true;
-      this.text = "Succesfull deleting lun accumulate";
       this.$emit("del-lun-accumulate", this.lunaccs.i_stor_lunacc);
       this.clearData();
+    },
+    showSnackBar(succes,text){
+      this.color = (succes)?"green":"red";
+      this.text = text;
+      this.snackbar = true;
     },
     closeDelete(){
       this.clearData();

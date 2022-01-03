@@ -111,12 +111,17 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateLunAccumulate();
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.lunaccform.showSnackBar(1,"Succesfull edit lun accumulate");
+              self.populateLunAccumulate();
+          }else{
+            self.$refs.lunaccform.showSnackBar(0,"Failed edit lun accumulate");
+          }
           self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.lunaccform.showSnackBar(0,"Failed edit lun accumulate");
+          self.loading=false;
         });
     },
     addLunAccumulate(accumulate) {
@@ -139,12 +144,17 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateLunAccumulate();
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.lunaccform.showSnackBar(1,"Succesfull add lun accumulate");
+              self.populateLunAccumulate();
+          }else{
+            self.$refs.lunaccform.showSnackBar(0,"Failed add lun accumulate");
+          }
           self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.lunaccform.showSnackBar(0,"Failed add lun accumulate");
+          self.loading=false;
         });
     },
     deleteLunAccumulate(id) {
@@ -159,12 +169,17 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateLunAccumulate();
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.lunaccform.showSnackBar(1,"Succesfull delete lun accumulate");
+              self.populateLunAccumulate();
+          }else{
+            self.$refs.lunaccform.showSnackBar(0,"Failed delete lun accumulate");
+          }
           self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.lunaccform.showSnackBar(0,"Failed delete lun accumulate");
+          self.loading=false;
         });
     },
     populateLunAccumulate() {
