@@ -10,10 +10,39 @@
         <span>management</span>
       </v-app-bar-title>
       <v-spacer> </v-spacer>
-      {{user.n_emp}}
-      <v-btn text color="grey" @click="signOut">
-        <v-icon>mdi-exit-to-app</v-icon>
-      </v-btn>
+       <v-menu offset-y close-on-content-click>
+        <template v-slot:activator="{ on, attrs }">
+          <v-avatar v-bind="attrs" v-on="on">
+            <v-icon dark>
+              mdi-account-circle
+            </v-icon>
+          </v-avatar>
+        </template>
+        <v-list>
+          <v-list-item two-line>
+            <v-list-item-content>
+              <v-list-item-title>{{user.n_emp}}</v-list-item-title>
+              <v-list-item-subtitle>{{user.i_user}}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="refresh">
+            <v-list-item-icon>
+              <v-icon>mdi-cloud-refresh</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+               <v-list-item-title> Refresh</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="signOut">
+            <v-list-item-icon>
+              <v-icon>mdi-exit-to-app</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+               <v-list-item-title> Sign Out</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" clipped app dark width="350">
       <v-card class="mx-auto" tile>
@@ -97,19 +126,17 @@
   </div>
 </template>
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
       drawer: false,
+      display: true,
       items: [],
       user:[],
       favourite:[],
-      items2: [
-        { title: 'Click Me' },
-        { title: 'Click Me' },
-        { title: 'Click Me' },
-        { title: 'Click Me' },
-      ],
+      items2: [],
       offset: true,
     };
   },
@@ -117,7 +144,11 @@ export default {
     clickDrawer() {
       this.drawer = !this.drawer;
     },
+    refresh(){
+      this.menuBar();
+    },
     signOut(){
+      this.$router.go({name:'Login'}) 
       this.$store.dispatch('logout')
     },
     addFavourite(child, parent){
@@ -145,7 +176,52 @@ export default {
       }
       let menu = JSON.stringify(this.items);
       this.$store.commit("setMenu", menu);
-    }    
+    },
+    menuBar() {
+      var self = this;
+      let id = this.user.i_user;
+      axios({
+        method: "GET",
+        url: `${process.env.VUE_APP_API_NIST}/menu/user/${id}`,
+      })
+        .then(function (response) {
+          if (response.status === 200) {
+            let menu = response.data;
+            self.menuAuth(menu);
+          } else {
+            console.log("gagal");
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    },
+    menuAuth(menu){
+      var self = this;
+      let id = this.user.i_user;
+      axios({
+        method: "GET",
+        url: `${process.env.VUE_APP_API_NIST}/menu/usertable/${id}`,
+      })
+        .then(function (response) {
+          if (response.status === 200) {
+            let menuauth = response.data;
+            self.saveUser(menu, menuauth);
+          } else {
+            console.log("gagal");
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    },
+    saveUser(menu, menuauth) {
+      this.items = menu;
+      menu = JSON.stringify(menu);
+      this.$store.commit("setMenu", menu);
+      menuauth = JSON.stringify(menuauth);
+      this.$store.commit("setMenuAuth", menuauth);
+    },
   },
   mounted() {
     this.user = JSON.parse( this.$store.getters.user);

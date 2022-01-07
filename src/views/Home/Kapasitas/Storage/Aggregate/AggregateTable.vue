@@ -7,7 +7,7 @@
         :loading="loading"
         loading-text="Loading... Please wait">
         <template v-slot:[`item.action`]="{item}">
-          <v-icon class="mr-2" color="blue" @click="addAggrAccumulate(item)">mdi-format-columns</v-icon>
+          <v-icon class="mr-2" color="blue" @click="addAggrAccumulate(item)">mdi-chart-areaspline</v-icon>
         </template>
       </v-data-table>
     </v-card-text>

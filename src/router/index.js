@@ -18,6 +18,10 @@ import User from '../views/Home/Administrator/User.vue'
 import Menu from '../views/Home/Administrator/Menu.vue'
 import Profile from '../views/Home/Administrator/Profile.vue'
 import Test from '../views/Home/Administrator/Test.vue'
+import Lkm_referensi_organisasi from '../views/Home/LKM/Referensi/Organisasi/Organisasi.vue'
+import Lkm_referensi_aktivitas from '../views/Home/LKM/Referensi/Aktivitas/Aktivitas.vue'
+import Lkm_referensi_kegiatan from '../views/Home/LKM/Referensi/Kegiatan/Aktivitas.vue'
+import Lkm_laporan from '../views/Home/LKM/Laporan/Kegiatan.vue'
 import page_404 from '../views/Error/404.vue'
 import page_403 from '../views/Error/403.vue'
 
@@ -162,6 +166,34 @@ const routes = [
     }
   },
   {
+    path: '/manajemen/referensi/peran-organisasi',
+    component: Lkm_referensi_organisasi,
+    meta: {
+      requiresAuth: true,
+    }
+  },
+  {
+    path: '/manajemen/referensi/activity',
+    component: Lkm_referensi_aktivitas,
+    meta: {
+      requiresAuth: true,
+    }
+  },
+  {
+    path: '/manajemen/referensi/kegiatan',
+    component: Lkm_referensi_kegiatan,
+    meta: {
+      requiresAuth: true,
+    }
+  },
+  {
+    path: '/manajemen/laporan',
+    component: Lkm_laporan,
+    meta: {
+      requiresAuth: true,
+    }
+  },
+  {
     path: '/:catchAll(.*)',
     name: '404',
     component: page_404
@@ -182,10 +214,8 @@ const router = new VueRouter({
 router.beforeEach((to,from, next)=>{
     //CEK APAKAH MASUK HALAMAN UTAMA
     if(to.meta.requiresAuth){
-      console.log("need Login")
       let menuauth = JSON.parse( localStorage.getItem('menuAuth'));
       if(menuauth.length>0){
-        console.log(menuauth);
         let menufound = menuauth.filter((element)=>{
           return element.link==to.path;
         })

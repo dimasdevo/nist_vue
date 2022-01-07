@@ -6,11 +6,16 @@
           <v-flex>
             <form v-on:submit.prevent="onSignIn">
               <v-card rounded>
+                <v-card-text>
                 <v-row no-gutters align-content="center">
                   <v-col md="8">
-                    <v-img
-                      src="/images/2650401.jpg" style="max-height:600px;max-width:700px"
-                    ></v-img>
+                    <v-carousel :show-arrows="false" cycle>
+                      <v-carousel-item
+                        v-for="(item,i) in items"
+                        :key="i"
+                        :src="item.src"
+                      ></v-carousel-item>
+                    </v-carousel>
                   </v-col>
                   <v-col md="4">
                     <div style="padding:30px">
@@ -46,6 +51,7 @@
                     </div>
                   </v-col>
                 </v-row>
+                </v-card-text>
               </v-card>
             </form>
           </v-flex>
@@ -101,6 +107,17 @@ export default {
       text: 'Lorem ipsum dolor sit amet',
       vertical: true,
       timeout: 2000,
+      items: [
+          {
+            src: '/images/it_support.jpg',
+          },
+          {
+            src: '/images/launching.jpg',
+          },
+          {
+            src: '/images/Data_Security.jpg',
+          }
+      ]
     };
   },
   name: "Login",
