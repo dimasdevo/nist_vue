@@ -10,26 +10,22 @@
       <span>Refresh</span>
       <v-icon right>mdi-cloud-refresh</v-icon>
     </v-btn>
-    <aktivitas-table v-bind:aktivitass="aktivitass" v-bind:menuauth="menuauth" v-bind:loading="loading" v-if="!kegiatan"/>
-    <kegiatan ref="kegiatanform" v-if="kegiatan" v-bind:job="job"/>
+    <aktivitas-table v-bind:aktivitass="aktivitass" v-bind:menuauth="menuauth" v-bind:loading="loading"/>
   </div>
 </template>
 <script>
 import axios from "axios";
 
 import AktivitasTable from "./AktivitasTable.vue";
-import Kegiatan from './Kegiatan.vue';
 
 export default {
   name: "Peran-Aktivitas",
   components: {
     AktivitasTable,
-    Kegiatan,
   },
   data() {
     return {
       job: null,
-      kegiatan: false,
       template:null,
       menuauth:{
         f_add:'0',
@@ -42,15 +38,15 @@ export default {
     };
   },
   methods: {
-    openKegiatanDialog(data){
-      this.kegiatan = true;
-      this.job = data; 
+    setAktivitas(aktivitas){
+      this.$emit("set-aktivitas", aktivitas) ;
     },
     populateAktivitas() {
       let self = this;
       let options = {
         method: "GET",
         url: `${process.env.VUE_APP_API_NIST}/lkm/activity/job`,
+        params: {i_lkm_tmpl:this.template.i_lkm_tmpl}
       };
 
       axios
@@ -101,7 +97,7 @@ export default {
   mounted() {
     let user = JSON.parse( this.$store.getters.user);
     let menuauth = JSON.parse( this.$store.getters.menuAuth);
-    this.menuauth = menuauth.filter((element)=>{return element.id=='61'})[0];
+    this.menuauth = menuauth.filter((element)=>{return element.id=='144'})[0];
     this.i_entry =  user.i_user;
     this.populateAktivitasInit();
   },

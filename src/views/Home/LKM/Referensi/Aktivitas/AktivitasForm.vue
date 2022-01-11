@@ -11,6 +11,7 @@
                 label="Nama Aktivitas"
                 placeholder="Nama Aktivitas"
                 v-model="aktivitas.n_lkm_acty"
+                :rules="rules.n_lkm_acty"
                 filled
               >
               </v-text-field>
@@ -20,6 +21,7 @@
                 v-model="aktivitas.c_lkm_actytype"
                 :items="klasifikasi_list"
                 label="Tipe Aktivitas"
+                :rules="rules.c_lkm_actytype"
                 filled
                 required
               ></v-select>
@@ -75,6 +77,7 @@
                 label="Target Aktivitas"
                 placeholder="Input Target Aktivitas"
                 v-model="aktivitas.e_lkm_actytgt"
+                :rules="rules.e_lkm_actytgt"
                 filled
               >
               </v-text-field>
@@ -87,6 +90,7 @@
                 chips
                 filled
                 label="Assign To"
+                :rules="rules.c_org"
                 multiple
               ></v-select>
             </div>
@@ -151,6 +155,12 @@ export default {
         d_lkm_milend:"",
         e_lkm_actytgt:"",
         c_org:[],
+      },
+      rules:{
+        n_lkm_acty: [(v) => (!!v && v.length <= 150)||"Nama Aktivitas is required"],
+        c_lkm_actytype: [(v) => (!!v)||"Tipe Aktivitas is required"],
+        e_lkm_actytgt: [(v) => (!!v  && v.length <= 150)||"Target Aktivitas is required"],
+        c_org: [(v) => (!!v )||"Organisasi is required"],
       },
       menu: false,
       dates: [],

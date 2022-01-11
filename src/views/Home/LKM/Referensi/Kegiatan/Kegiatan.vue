@@ -60,15 +60,13 @@ import KegiatanForm from "./KegiatanForm.vue";
 
 export default {
   name: "Peran-Kegiatan",
-  props: {
-    job: Object
-  },
   components: {
     KegiatanTable,
     KegiatanForm
   },
   data() {
     return {
+      aktivitas:null,
       menuauth:{
         f_add:'0',
         f_edit:'0',
@@ -81,11 +79,14 @@ export default {
     };
   },
   methods: {
+    setKegiatan(kegiatan){
+      this.$parent.setKegiatan(kegiatan);
+    },
     openAddDialog() {
-      this.$refs.kegiatanform.openDialogAdd();
+      this.$refs.kegiatanform.openDialogAdd(this.aktivitas);
     },
     openEditDialog(data) {
-      this.$refs.kegiatanform.openDialogEdit(data);
+      this.$refs.kegiatanform.openDialogEdit(data,this.aktivitas);
     },
     openDeleteDialog(data) {
       this.$refs.kegiatanform.openDialogDelete(data);
@@ -112,12 +113,17 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateKegiatan();
-          self.loading = false;
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.kegiatanform.showSnackBar(1,"Succesfull edit kegiatan");
+              self.populateKegiatan();
+          }else{
+            self.$refs.kegiatanform.showSnackBar(0,"Failed edit kegiatan");
+          }
+          self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.kegiatanform.showSnackBar(0,"Failed edit kegiatan");
+          self.loading=false;
         });
     },
     addKegiatan(kegiatan) {
@@ -141,12 +147,17 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateKegiatan();
-          self.loading = false;
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.kegiatanform.showSnackBar(1,"Succesfull add kegiatan");
+              self.populateKegiatan();
+          }else{
+            self.$refs.kegiatanform.showSnackBar(0,"Failed add kegiatan");
+          }
+          self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.kegiatanform.showSnackBar(0,"Failed add kegiatan");
+          self.loading=false;
         });
     },
     deleteKegiatan(id) {
@@ -161,19 +172,25 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          self.populateKegiatan();
-          self.loading = false;
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.kegiatanform.showSnackBar(1,"Succesfull delete kegiatan");
+              self.populateKegiatan();
+          }else{
+            self.$refs.kegiatanform.showSnackBar(0,"Failed delete kegiatan");
+          }
+          self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.kegiatanform.showSnackBar(0,"Failed delete kegiatan");
+          self.loading=false;
         });
     },
     populateKegiatan() {
       let self = this;
       let options = {
         method: "GET",
-        url: `${process.env.VUE_APP_API_NIST}/lkm/job`,
+        url: `${process.env.VUE_APP_API_NIST}/lkm/job/query`,
+        params:{i_lkm_actyorg:this.aktivitas.i_lkm_actyorg}
       };
 
       axios
@@ -195,14 +212,16 @@ export default {
     },
     refresh(){
       this.populateKegiatan();
+    },
+    setAktivitas(aktivitas){
+      this.aktivitas = aktivitas;
     }
   },
   mounted() {
     let user = JSON.parse( this.$store.getters.user);
     let menuauth = JSON.parse( this.$store.getters.menuAuth);
     this.menuauth = menuauth.filter((element)=>{return element.id=='61'})[0];
-    this.i_entry =  user.i_user;
-    this.populateKegiatan();
+    this.i_entry =  user.i_user;    
   },
 };
 </script>

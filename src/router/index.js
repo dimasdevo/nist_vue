@@ -20,7 +20,8 @@ import Profile from '../views/Home/Administrator/Profile.vue'
 import Test from '../views/Home/Administrator/Test.vue'
 import Lkm_referensi_organisasi from '../views/Home/LKM/Referensi/Organisasi/Organisasi.vue'
 import Lkm_referensi_aktivitas from '../views/Home/LKM/Referensi/Aktivitas/Aktivitas.vue'
-import Lkm_referensi_kegiatan from '../views/Home/LKM/Referensi/Kegiatan/Aktivitas.vue'
+import Lkm_referensi_kegiatan_1 from '../views/Home/LKM/Referensi/Kegiatan/Job.vue'
+import Lkm_referensi_template from '../views/Home/LKM/Referensi/Template/Template.vue'
 import Lkm_laporan from '../views/Home/LKM/Laporan/Kegiatan.vue'
 import page_404 from '../views/Error/404.vue'
 import page_403 from '../views/Error/403.vue'
@@ -181,7 +182,14 @@ const routes = [
   },
   {
     path: '/manajemen/referensi/kegiatan',
-    component: Lkm_referensi_kegiatan,
+    component: Lkm_referensi_kegiatan_1,
+    meta: {
+      requiresAuth: true,
+    }
+  },
+  {
+    path: '/manajemen/referensi/template',
+    component: Lkm_referensi_template,
     meta: {
       requiresAuth: true,
     }

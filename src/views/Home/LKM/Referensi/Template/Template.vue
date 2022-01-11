@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="mb-4">Daftar Peran Organisasi</h1>
+    <h1 class="mb-4">Daftar Template</h1>
     <hr />
     <v-menu  offset-y>
       <template v-slot:activator="{ on, attrs }">
@@ -12,14 +12,14 @@
       <v-list>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="organisasis" name="organisasis.xls">
+            <download-excel :data="templates" name="templates.xls">
               Export To XLS
             </download-excel>
           </v-list-item-title>
         </v-list-item>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="organisasis" type="csv" name="organisasis.csv">
+            <download-excel :data="templates" type="csv" name="templates.csv">
               Export To CSV
             </download-excel>
           </v-list-item-title>
@@ -41,12 +41,12 @@
       <span>Refresh</span>
       <v-icon right>mdi-cloud-refresh</v-icon>
     </v-btn>
-    <organisasi-table v-bind:organisasis="organisasis" v-bind:menuauth="menuauth" v-bind:loading="loading" />
-    <organisasi-form
-      ref="organisasiform"
-      @edit-organisasi="editOrganisasi"
-      @add-organisasi="addOrganisasi"
-      @del-organisasi="deleteOrganisasi"
+    <template-table v-bind:templates="templates" v-bind:menuauth="menuauth" v-bind:loading="loading" />
+    <template-form
+      ref="templateform"
+      @edit-template="editTemplate"
+      @add-template="addTemplate"
+      @del-template="deleteTemplate"
     />
   </div>
 </template>
@@ -54,14 +54,14 @@
 import axios from "axios";
 import qs from "qs";
 
-import OrganisasiTable from "./OrganisasiTable.vue";
-import OrganisasiForm from "./OrganisasiForm.vue";
+import TemplateTable from "./TemplateTable.vue";
+import TemplateForm from "./TemplateForm.vue";
 
 export default {
-  name: "Peran-Organisasi",
+  name: "Peran-Template",
   components: {
-    OrganisasiTable,
-    OrganisasiForm
+    TemplateTable,
+    TemplateForm
   },
   data() {
     return {
@@ -70,36 +70,32 @@ export default {
         f_edit:'0',
         f_delete:'0',
       },
-      template:null,
       i_entry:"",
-      organisasis: [],
+      templates: [],
       loading:false
     };
   },
   methods: {
     openAddDialog() {
-      this.$refs.organisasiform.openDialogAdd(this.template);
+      this.$refs.templateform.openDialogAdd();
     },
     openEditDialog(data) {
-      this.$refs.organisasiform.openDialogEdit(data);
+      this.$refs.templateform.openDialogEdit(data);
     },
     openDeleteDialog(data) {
-      this.$refs.organisasiform.openDialogDelete(data);
+      this.$refs.templateform.openDialogDelete(data);
     },
-    editOrganisasi(id, organisasi) {
+    editTemplate(id, template) {
       this.loading=true;
       let self = this;
       let data = {
-        c_org: organisasi.c_org,
-        c_org_parent: organisasi.c_org_parent,
-        c_org_type: organisasi.c_org_type,
-        c_lkm_resp: organisasi.c_lkm_resp,
-        n_lkm_resp: organisasi.n_lkm_resp,
+        n_lkm_tmpl: template.n_lkm_tmpl,
+        f_lkm_tmpl: template.f_lkm_tmpl,
         i_update: this.i_entry
       };
       let options = {
         method: "PUT",
-        url: `${process.env.VUE_APP_API_NIST}/lkm/organisasi`,
+        url: `${process.env.VUE_APP_API_NIST}/lkm/template`,
         params: { id: id },
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         data: qs.stringify(data),
@@ -109,34 +105,30 @@ export default {
         .request(options)
         .then(function (response) {
           if(response.status>= 200 && response.status < 400){
-              self.$refs.organisasiform.showSnackBar(1,"Succesfull edit organisasi");
-              self.populateOrganisasi();
+              self.$refs.templateform.showSnackBar(1,"Succesfull edit template");
+              self.populateTemplate();
           }else{
-            self.$refs.organisasiform.showSnackBar(0,"Failed edit organisasi");
+            self.$refs.templateform.showSnackBar(0,"Failed edit template");
           }
           self.loading=false;
         })
         .catch(()=> {
-          self.$refs.organisasiform.showSnackBar(0,"Failed edit organisasi");
+          self.$refs.templateform.showSnackBar(0,"Failed edit template");
           self.loading=false;
         });
     },
-    addOrganisasi(organisasi) {
+    addTemplate(template) {
       this.loading=true;
       let self = this;
       let formData = new FormData();
       console.log(this.i_entry);
-      formData.append("i_lkm_tmpl", organisasi.i_lkm_tmpl);
-      formData.append("c_org", organisasi.c_org);
-      formData.append("c_org_parent", organisasi.c_org_parent);
-      formData.append("c_org_type", organisasi.c_org_type);
-      formData.append("c_lkm_resp", organisasi.c_lkm_resp);
-      formData.append("n_lkm_resp", organisasi.n_lkm_resp);
+      formData.append("n_lkm_tmpl", template.n_lkm_tmpl);
+      formData.append("f_lkm_tmpl", template.f_lkm_tmpl);
       formData.append("i_entry",this.i_entry);
       formData.append("i_update",this.i_entry);
       let options = {
         method: "post",
-        url: `${process.env.VUE_APP_API_NIST}/lkm/organisasi`,
+        url: `${process.env.VUE_APP_API_NIST}/lkm/template`,
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
@@ -145,24 +137,24 @@ export default {
         .request(options)
         .then(function (response) {
           if(response.status>= 200 && response.status < 400){
-              self.$refs.organisasiform.showSnackBar(1,"Succesfull add organisasi");
-              self.populateOrganisasi();
+              self.$refs.templateform.showSnackBar(1,"Succesfull add template");
+              self.populateTemplate();
           }else{
-            self.$refs.organisasiform.showSnackBar(0,"Failed add organisasi");
+            self.$refs.templateform.showSnackBar(0,"Failed add template");
           }
           self.loading=false;
         })
         .catch(()=> {
-          self.$refs.organisasiform.showSnackBar(0,"Failed add organisasi");
+          self.$refs.templateform.showSnackBar(0,"Failed add template");
           self.loading=false;
         });
     },
-    deleteOrganisasi(id) {
+    deleteTemplate(id) {
       this.loading=true;
       let self = this;
       let options = {
         method: "DELETE",
-        url: `${process.env.VUE_APP_API_NIST}/lkm/organisasi`,
+        url: `${process.env.VUE_APP_API_NIST}/lkm/template`,
         params: { id: id },
       };
 
@@ -170,24 +162,24 @@ export default {
         .request(options)
         .then(function (response) {
           if(response.status>= 200 && response.status < 400){
-              self.$refs.organisasiform.showSnackBar(1,"Succesfull delete organisasi");
-              self.populateOrganisasi();
+              self.$refs.templateform.showSnackBar(1,"Succesfull delete template");
+              self.populateTemplate();
           }else{
-            self.$refs.organisasiform.showSnackBar(0,"Failed delete organisasi");
+            self.$refs.templateform.showSnackBar(0,"Failed delete template");
           }
           self.loading=false;
         })
         .catch(()=> {
-          self.$refs.organisasiform.showSnackBar(0,"Failed delete organisasi");
+          self.$refs.templateform.showSnackBar(0,"Failed delete template");
           self.loading=false;
         });
     },
-    populateOrganisasi() {
-      this.organisasis = [];
+    populateTemplate() {
+      this.templates = [];
       let self = this;
       let options = {
         method: "GET",
-        url: `${process.env.VUE_APP_API_NIST}/lkm/organisasi`,
+        url: `${process.env.VUE_APP_API_NIST}/lkm/template`,
       };
 
       axios
@@ -195,7 +187,7 @@ export default {
         .then((response)=> {
           if (response.status === 200) {
             let data = response.data;
-            self.organisasis = data;
+            self.templates = data;
             self.loading = false;
           } else {
             console.log("gagal");
@@ -205,48 +197,24 @@ export default {
         .catch(function (error) {
           console.error(error);
         });
-    },
-    populateOrganisasiInit() {
-      this.loading = true;
-      this.aggregates = [];
-      let self = this;
-      let options = {
-        method: "GET",
-        url: `${process.env.VUE_APP_API_NIST}/lkm/template/active`,
-      };
-
-      axios
-        .request(options)
-        .then((response)=> {
-          if (response.status === 200) {
-            let data = response.data;
-            self.template = data[0];
-            self.populateOrganisasi();
-          } else {
-            console.log("gagal");
-          }
-          self.loading = false;
-        })
-        .catch(function (error) {
-          console.error(error);
-        });
-    },
+    }
+    ,
     refresh(){
-      this.populateOrganisasiInit();
+      this.populateTemplate();
     }
   },
   mounted() {
     let user = JSON.parse( this.$store.getters.user);
     let menuauth = JSON.parse( this.$store.getters.menuAuth);
-    this.menuauth = menuauth.filter((element)=>{return element.id=='142'})[0];
+    this.menuauth = menuauth.filter((element)=>{return element.id=='201'})[0];
     this.i_entry =  user.i_user;
-    this.populateOrganisasiInit();
+    this.populateTemplate();
   },
 };
 </script>
 
 <style>
-#organisasi {
+#template {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

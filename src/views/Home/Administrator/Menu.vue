@@ -40,6 +40,19 @@
       <span>Add</span>
       <v-icon right>mdi-plus</v-icon>
     </v-btn>
+    <div>
+      <v-chip
+          v-if="getMenu1"
+          class="ma-2"
+          close
+          color="blue"
+          label
+          outlined
+          @click:close="deleteMenuDialog"
+          >
+          Menu: {{menuid.n_menu}}
+      </v-chip>
+    </div>
     <menu-table v-bind:menus="menus" />
     <menu-form
       ref="menuForm"
@@ -66,17 +79,32 @@ export default {
     return {
       i_entry:"",
       menus: [],
+      menuid:null,
+      menuid2:null,
     };
+  },
+  computed:{
+    getMenu1(){
+      return (this.menuid!==null)?1:0;
+    },
   },
   methods: {
     openAddDialog() {
-      this.$refs.menuForm.openDialogAdd();
+      this.$refs.menuForm.openDialogAdd(this.menuid);
     },
     openEditDialog(data) {
-      this.$refs.menuForm.openDialogEdit(data);
+      this.$refs.menuForm.openDialogEdit(data, this.menuid);
     },
     openDeleteDialog(data) {
       this.$refs.menuForm.openDialogDelete(data);
+    },
+    openMenuDialog(menu) {
+      this.menuid = menu;
+      this.populateMenu();
+    },
+    deleteMenuDialog(){
+      this.menuid=null;
+      this.populateMenu()
     },
     editMenu(id, menu) {
       let self = this;
@@ -159,8 +187,22 @@ export default {
       })
         .then(function (response) {
           if (response.status === 200) {
-            let data = response.data;            
-            self.menus = data;
+            let data = response.data;
+            if(self.menuid == null){
+              let parent = data.filter((element)=>{return element.i_menu_root=='-'});
+              self.menus = parent;
+            }else{
+              let child = data.filter((element)=>{return element.i_menu_root==self.menuid.i_menu});
+              let grandchild =[];
+              child.forEach(element => {
+                let temp  = data.filter((el)=>{return el.i_menu_root==element.i_menu});
+                temp.forEach(el1 => {
+                  grandchild.push(el1);
+                });
+                grandchild.push(element);
+              });
+              self.menus = grandchild;
+            }
           } else {
             console.log("gagal");
           }

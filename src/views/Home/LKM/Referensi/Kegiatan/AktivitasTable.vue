@@ -39,7 +39,7 @@
     methods:{
       showKegiatan(aktivitas){
         let data = Object.assign({},aktivitas)
-        this.$parent.openKegiatanDialog(data);
+        this.$parent.setAktivitas(data);
       },
     }
   }

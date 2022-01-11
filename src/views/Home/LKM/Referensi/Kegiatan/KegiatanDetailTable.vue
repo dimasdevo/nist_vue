@@ -12,12 +12,11 @@
     <v-card-text>
     <v-data-table
       :headers="headers"
-      :items="kegiatans"
+      :items="kegiatandetails"
       :loading="loading"
       :search="search"
       loading-text="Loading... Please wait">
       <template v-slot:[`item.action`]="{item}">
-        <v-icon class="mr-2" color="yellow" @click="showDetail(item)">mdi-eye</v-icon>
         <v-icon class="mr-2" color="yellow" @click="editKegiatan(item)"  v-if="menuauth.f_edit=='1'">mdi-pencil</v-icon>
         <v-icon color="red" @click="deleteKegiatan(item)" v-if="menuauth.f_delete=='1'">mdi-delete</v-icon>
       </template>
@@ -30,7 +29,7 @@
     name: 'kegiatan-table',
     props:{
       menuauth:Object,
-      kegiatans: Array,
+      kegiatandetails: Array,
       loading: Boolean,
     },
     data(){
@@ -39,10 +38,10 @@
         kegiatanId:null,
         headers:[
           { text: 'ID', value: 'i_lkm_job',align: 'start' },
-          { text: 'Nama Kegiatan', value: 'n_lkm_job' },
+          { text: 'Nama Kegiatan', value: 'n_lkm_jobdtl' },
           { text: 'LKM Mulai', value: 'd_lkm_milstart' },
           { text: 'LKM Akhir', value: 'd_lkm_milend' },
-          { text: 'Target', value: 'e_lkm_jobtgt' },
+          { text: 'Target', value: 'e_lkm_jobdtltgt' },
           { text: 'Action', value: 'action' },
         ]
       }
@@ -55,11 +54,7 @@
       deleteKegiatan(kegiatan){
         let data = Object.assign({},kegiatan)
         this.$parent.openDeleteDialog(data);
-      },
-      showDetail(kegiatan){
-        let data = Object.assign({},kegiatan)
-        this.$parent.setKegiatan(data);
-      },
+      }
     }
   }
 </script>

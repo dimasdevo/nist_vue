@@ -89,7 +89,7 @@ export default {
     },
     editAktivitas(id, aktivitas) {
       this.loading=true;
-      let it = this;
+      let self = this;
       let data = {
         n_lkm_acty: aktivitas.n_lkm_acty,
         c_lkm_actytype: aktivitas.c_lkm_actytype,
@@ -110,17 +110,22 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          it.populateAktivitas();
-          self.loading = false;
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.aktivitasform.showSnackBar(1,"Succesfull edit aktivitas");
+              self.populateAktivitas();
+          }else{
+            self.$refs.aktivitasform.showSnackBar(0,"Failed edit aktivitas");
+          }
+          self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.aktivitasform.showSnackBar(0,"Failed edit aktivitas");
+          self.loading=false;
         });
     },
     addAktivitas(aktivitas) {
       this.loading=true;
-      let it = this;
+      let self = this;
       let formData = new FormData();
       formData.append("i_lkm_tmpl", aktivitas.i_lkm_tmpl);
       formData.append("n_lkm_acty", aktivitas.n_lkm_acty);
@@ -141,17 +146,22 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          it.populateAktivitas();
-          self.loading = false;
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.aktivitasform.showSnackBar(1,"Succesfull add aktivitas");
+              self.populateAktivitas();
+          }else{
+            self.$refs.aktivitasform.showSnackBar(0,"Failed add aktivitas");
+          }
+          self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.aktivitasform.showSnackBar(0,"Failed add aktivitas");
+          self.loading=false;
         });
     },
     deleteAktivitas(id) {
       this.loading=true;
-      let it = this;
+      let self = this;
       let options = {
         method: "DELETE",
         url: `${process.env.VUE_APP_API_NIST}/lkm/activity`,
@@ -161,12 +171,17 @@ export default {
       axios
         .request(options)
         .then(function (response) {
-          console.log(response.data);
-          it.populateAktivitas();
-          self.loading = false;
+          if(response.status>= 200 && response.status < 400){
+              self.$refs.aktivitasform.showSnackBar(1,"Succesfull delete aktivitas");
+              self.populateAktivitas();
+          }else{
+            self.$refs.aktivitasform.showSnackBar(0,"Failed delete aktivitas");
+          }
+          self.loading=false;
         })
-        .catch(function (error) {
-          console.error(error);
+        .catch(()=> {
+          self.$refs.aktivitasform.showSnackBar(0,"Failed delete aktivitas");
+          self.loading=false;
         });
     },
     populateAktivitas() {
@@ -174,6 +189,7 @@ export default {
       let options = {
         method: "GET",
         url: `${process.env.VUE_APP_API_NIST}/lkm/activity/paralel`,
+        params: {i_lkm_tmpl:this.template.i_lkm_tmpl}
       };
 
       axios
@@ -224,7 +240,7 @@ export default {
   mounted() {
     let user = JSON.parse( this.$store.getters.user);
     let menuauth = JSON.parse( this.$store.getters.menuAuth);
-    this.menuauth = menuauth.filter((element)=>{return element.id=='61'})[0];
+    this.menuauth = menuauth.filter((element)=>{return element.id=='143'})[0];
     this.i_entry =  user.i_user;
     this.populateAktivitasInit();
   },

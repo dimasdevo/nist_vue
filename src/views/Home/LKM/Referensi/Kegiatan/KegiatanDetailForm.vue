@@ -10,8 +10,8 @@
               <v-text-field
                 label="Nama Kegiatan"
                 placeholder="Input id kegiatan"
-                v-model="kegiatan.n_lkm_job"
-                :rules="rules.n_lkm_job"
+                v-model="kegiatandetail.n_lkm_jobdtl"
+                :rules="rules.n_lkm_jobdtl"
                 filled
               >
               </v-text-field>
@@ -66,8 +66,8 @@
               <v-text-field
                 label="Target Kegiatan"
                 placeholder="Input kegiatan"
-                v-model="kegiatan.e_lkm_jobtgt"
-                :rules="rules.e_lkm_jobtgt"
+                v-model="kegiatandetail.e_lkm_jobdtltgt"
+                :rules="rules.e_lkm_jobdtltgt"
                 filled
               >
               </v-text-field>
@@ -84,7 +84,7 @@
     </v-dialog>
     <v-dialog v-model="dialogDelete" max-width="500px">
         <v-card>
-          <v-card-title class="text-h5">Are you sure you want to delete this item {{kegiatan.n_lkm_job}}?</v-card-title>
+          <v-card-title class="text-h5">Are you sure you want to delete this item {{kegiatandetail.n_lkm_jobdtl}}?</v-card-title>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
@@ -109,26 +109,26 @@ export default {
   name: "kegiatan-add",
   data() {
     return {
-      color: "green",
+      color:"green",
       snackbar: false,
       items: ['Foo', 'Bar', 'Fizz', 'Buzz'],
       text: "",
       timeout: 2000,
       type: "add",
-      title: "FORMULIR TAMBAH KEGIATAN",
+      title: "FORMULIR TAMBAH RINCIAN KEGIATAN",
       dialog: false,
       dialogDelete: false,
-      kegiatan: {
+      kegiatandetail: {
+        i_lkm_jobdtl:"",
+        n_lkm_jobdtl:"",
         i_lkm_job:"",
-        n_lkm_job:"",
-        i_lkm_actyorg:"",
         d_lkm_milstart:"",
         d_lkm_milend:"",
-        e_lkm_jobtgt:"",
+        e_lkm_jobdtltgt:"",
       },
        rules:{
-        n_lkm_job: [(v) => (!!v && v.length <= 150)||"Nama Kegiatan is required"],
-        e_lkm_jobtgt: [(v) => (!!v  && v.length <= 150)||"Target Kegiatan is required"],
+        n_lkm_jobdtl: [(v) => (!!v && v.length <= 150)||"Nama Kegiatan is required"],
+        e_lkm_jobdtltgt: [(v) => (!!v  && v.length <= 150)||"Target Kegiatan is required"],
       },
       dates:[],
       menu: false
@@ -140,25 +140,22 @@ export default {
       if (this.$refs.form.validate()) {
         switch (this.type) {
           case "edit":
-            this.kegiatan.d_lkm_milstart=this.dates[0];
-            this.kegiatan.d_lkm_milend=this.dates[1];
-            this.$emit("edit-kegiatan", this.kegiatan.i_lkm_job, this.kegiatan);
+            this.kegiatandetail.d_lkm_milstart=this.dates[0];
+            this.kegiatandetail.d_lkm_milend=this.dates[1];
+            this.$emit("edit-kegiatan", this.kegiatandetail.i_lkm_jobdtl, this.kegiatandetail);
             break;
 
           default:
-            this.kegiatan.d_lkm_milstart=this.dates[0];
-            this.kegiatan.d_lkm_milend=this.dates[1];
-            this.$emit("add-kegiatan", this.kegiatan);
+            this.kegiatandetail.d_lkm_milstart=this.dates[0];
+            this.kegiatandetail.d_lkm_milend=this.dates[1];
+            this.$emit("add-kegiatan", this.kegiatandetail);
             break;
         }
         this.clearData();
       }
     },
     deleteItemConfirm(){
-      this.$emit("del-kegiatan", this.kegiatan.i_lkm_job);
-      this.clearData();
-    },
-    closeDelete(){
+      this.$emit("del-kegiatan", this.kegiatandetail.i_lkm_jobdtl);
       this.clearData();
     },
     showSnackBar(succes,text){
@@ -166,37 +163,40 @@ export default {
       this.text = text;
       this.snackbar = true;
     },
+    closeDelete(){
+      this.clearData();
+    },
     clearData(){
-      this.kegiatan = {
+      this.kegiatandetail = {
+        i_lkm_jobdtl:"",
+        n_lkm_jobdtl:"",
         i_lkm_job:"",
-        n_lkm_job:"",
-        i_lkm_actyorg:"",
         d_lkm_milstart:"",
         d_lkm_milend:"",
-        e_lkm_jobtgt:"",
+        e_lkm_jobdtltgt:"",
         d_lkm_mil:[],
       };
       this.dates=[];
       this.dialog = false;
       this.dialogDelete = false;
     },
-    openDialogAdd(aktivitas) {
+    openDialogAdd(kegiatan) {
       this.dialog = true;
-      this.title = "FORM ADD KEGIATAN";
+      this.title = "FORM ADD RINCIAN KEGIATAN";
       this.type = "add";
-      this.kegiatan.i_lkm_actyorg = aktivitas.i_lkm_actyorg
+      this.kegiatandetail.i_lkm_job = kegiatan.i_lkm_job
     },
-    openDialogEdit(data,aktivitas) {
+    openDialogEdit(data,kegiatan) {
       this.dialog = true;
-      this.kegiatan = data;
-      this.dates=[this.kegiatan.d_lkm_milstart,this.kegiatan.d_lkm_milend];
-      this.kegiatan.i_lkm_actyorg = aktivitas.i_lkm_actyorg
-      this.title = "FORM EDIT KEGIATAN";
+      this.kegiatandetail = data;
+      this.dates=[this.kegiatandetail.d_lkm_milstart,this.kegiatandetail.d_lkm_milend];
+      this.kegiatandetail.i_lkm_job = kegiatan.i_lkm_job
+      this.title = "FORM EDIT RINCIAN KEGIATAN";
       this.type = "edit";
     },
     openDialogDelete(data) {
       this.dialogDelete = true;
-      this.kegiatan = data;
+      this.kegiatandetail = data;
       this.type = "delete";
     },
   },

@@ -196,7 +196,7 @@ export default {
   mounted() {
     let user = JSON.parse( this.$store.getters.user);
     let menuauth = JSON.parse( this.$store.getters.menuAuth);
-    this.menuauth = menuauth.filter((element)=>{return element.id=='61'})[0];
+    this.menuauth = menuauth.filter((element)=>{return element.id=='161'})[0];
     this.i_entry =  user.i_user;
     this.populateKegiatan();
   },

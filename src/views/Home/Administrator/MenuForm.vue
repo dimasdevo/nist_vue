@@ -146,14 +146,12 @@ export default {
       if(this.menu_obj.i_menu_root=='-'){
         this.menu_obj.i_menu_lvl='1';
         let obj_root = this.menus.filter((element)=>{return element.i_menu_root==this.menu_obj.i_menu_root});
-        let obj_max = obj_root.sort().reverse()[0];
+        let obj_max = obj_root.sort(this.filterOrder)[0];
         this.menu_obj.i_menu_ord =  parseInt(obj_max.i_menu_ord)+1;
         
       }else{
         let obj_root = this.menus.filter((element)=>{return element.i_menu==this.menu_obj.i_menu_root});
         let obj_child = this.menus.filter((element)=>{return element.i_menu_root==this.menu_obj.i_menu_root});
-        console.log(obj_root);
-        console.log(obj_child);
         if(obj_child.length<1){
           let obj_max = obj_root[0];
           this.menu_obj.i_menu_lvl = parseInt(obj_max.i_menu_lvl)+1;
@@ -161,7 +159,8 @@ export default {
           split_lvl.push("1");
           this.menu_obj.i_menu_ord= split_lvl.join('.');
         }else{
-          let obj_max_child = obj_child.sort().reverse()[0];
+          let obj_max_child = obj_child.sort(this.filterOrder)[0];
+          console.log(obj_max_child);
           let obj_max = obj_root[0];
           this.menu_obj.i_menu_lvl = parseInt(obj_max.i_menu_lvl)+1;
           let split_lvl =  obj_max_child.i_menu_ord.split(".");
@@ -169,6 +168,13 @@ export default {
           split_lvl[split_index] = parseInt(split_lvl[split_index])+1;
           this.menu_obj.i_menu_ord= split_lvl.join('.');
         }
+      }
+    },
+    filterOrder(a,b){
+      if(a.i_menu_ord<b.i_menu_ord){
+        return 1;
+      }else{
+        return -1;
       }
     },
     deleteItemConfirm(){
@@ -196,25 +202,25 @@ export default {
       this.dialog = false;
       this.dialogDelete = false;
     },
-    openDialogAdd() {
+    openDialogAdd(menuid) {
       this.dialog = true;
       this.title = "FORM ADD MENU";
       this.type = "add";
-      this.populateRoots();
+      this.populateRoots(menuid);
     },
-    openDialogEdit(data) {
+    openDialogEdit(data, menuid) {
       this.dialog = true;
       this.menu_obj = data;
       this.title = "FORM EDIT MENU";
       this.type = "edit";
-      this.populateRoots();
+      this.populateRoots(menuid);
     },
     openDialogDelete(data) {
       this.dialogDelete = true;
       this.menu_obj = data;
       this.type = "delete";
     },
-    async populateRoots() {
+    async populateRoots(menuid) {
       var self = this;
       await axios({
         method: "GET",
@@ -223,8 +229,14 @@ export default {
         .then(function (response) {
           if (response.status === 200) {
             let data = response.data;  
-            self.menus = data;          
-            self.roots = data.filter((obj)=>{
+            self.menus = data; 
+            let roots = [];
+            if(menuid==null){
+              roots = data.filter((element)=>{return element.i_menu_root=='-'});
+            } else{
+              roots = data.filter((element)=>{return element.i_menu_root==menuid.i_menu});
+            }        
+            self.roots = roots.filter((obj)=>{
               if(obj.i_menu_lvl<=2){
                 return obj;
               }

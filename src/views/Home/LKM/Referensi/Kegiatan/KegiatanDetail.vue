@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="mb-4">Daftar Peran Organisasi</h1>
+    <h1 class="mb-4">Rincian Kegiatan</h1>
     <hr />
     <v-menu  offset-y>
       <template v-slot:activator="{ on, attrs }">
@@ -12,14 +12,14 @@
       <v-list>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="organisasis" name="organisasis.xls">
+            <download-excel :data="kegiatandetails" name="kegiatandetails.xls">
               Export To XLS
             </download-excel>
           </v-list-item-title>
         </v-list-item>
         <v-list-item>
           <v-list-item-title>
-            <download-excel :data="organisasis" type="csv" name="organisasis.csv">
+            <download-excel :data="kegiatandetails" type="csv" name="kegiatandetails.csv">
               Export To CSV
             </download-excel>
           </v-list-item-title>
@@ -41,12 +41,13 @@
       <span>Refresh</span>
       <v-icon right>mdi-cloud-refresh</v-icon>
     </v-btn>
-    <organisasi-table v-bind:organisasis="organisasis" v-bind:menuauth="menuauth" v-bind:loading="loading" />
-    <organisasi-form
-      ref="organisasiform"
-      @edit-organisasi="editOrganisasi"
-      @add-organisasi="addOrganisasi"
-      @del-organisasi="deleteOrganisasi"
+    <v-divider></v-divider>
+    <kegiatan-detail-table v-bind:kegiatandetails="kegiatandetails" v-bind:menuauth="menuauth" v-bind:loading="loading" />
+    <kegiatan-detail-form
+      ref="kegiatandetailform"
+      @edit-kegiatan="editKegiatan"
+      @add-kegiatan="addKegiatan"
+      @del-kegiatan="deleteKegiatan"
     />
   </div>
 </template>
@@ -54,52 +55,53 @@
 import axios from "axios";
 import qs from "qs";
 
-import OrganisasiTable from "./OrganisasiTable.vue";
-import OrganisasiForm from "./OrganisasiForm.vue";
+import KegiatanDetailTable from "./KegiatanDetailTable.vue";
+import KegiatanDetailForm from "./KegiatanDetailForm.vue";
 
 export default {
-  name: "Peran-Organisasi",
+  name: "Peran-Kegiatan-Detail",
   components: {
-    OrganisasiTable,
-    OrganisasiForm
+    KegiatanDetailTable,
+    KegiatanDetailForm
   },
   data() {
     return {
+      kegiatan:null,
       menuauth:{
         f_add:'0',
         f_edit:'0',
         f_delete:'0',
       },
-      template:null,
+      organisasi:['IT2100','IT2200','IT2300','IT2400'],
       i_entry:"",
-      organisasis: [],
+      kegiatandetails: [],
       loading:false
     };
   },
   methods: {
     openAddDialog() {
-      this.$refs.organisasiform.openDialogAdd(this.template);
+      this.$refs.kegiatandetailform.openDialogAdd(this.kegiatan);
     },
     openEditDialog(data) {
-      this.$refs.organisasiform.openDialogEdit(data);
+      this.$refs.kegiatandetailform.openDialogEdit(data,this.kegiatan);
     },
     openDeleteDialog(data) {
-      this.$refs.organisasiform.openDialogDelete(data);
+      this.$refs.kegiatandetailform.openDialogDelete(data);
     },
-    editOrganisasi(id, organisasi) {
+    editKegiatan(id, kegiatandetail) {
       this.loading=true;
       let self = this;
       let data = {
-        c_org: organisasi.c_org,
-        c_org_parent: organisasi.c_org_parent,
-        c_org_type: organisasi.c_org_type,
-        c_lkm_resp: organisasi.c_lkm_resp,
-        n_lkm_resp: organisasi.n_lkm_resp,
+        n_lkm_jobdtl: kegiatandetail.n_lkm_jobdtl,
+        d_lkm_milstart: kegiatandetail.d_lkm_milstart,
+        d_lkm_milend: kegiatandetail.d_lkm_milend,
+        i_lkm_job: kegiatandetail.i_lkm_job,
+        e_lkm_jobdtltgt: kegiatandetail.e_lkm_jobdtltgt,
         i_update: this.i_entry
       };
       let options = {
         method: "PUT",
-        url: `${process.env.VUE_APP_API_NIST}/lkm/organisasi`,
+        url: `${process.env.VUE_APP_API_NIST}/lkm/job-detail`,
         params: { id: id },
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         data: qs.stringify(data),
@@ -109,34 +111,32 @@ export default {
         .request(options)
         .then(function (response) {
           if(response.status>= 200 && response.status < 400){
-              self.$refs.organisasiform.showSnackBar(1,"Succesfull edit organisasi");
-              self.populateOrganisasi();
+              self.$refs.kegiatandetailform.showSnackBar(1,"Succesfull add rincian kegiatan");
+              self.populateKegiatan();
           }else{
-            self.$refs.organisasiform.showSnackBar(0,"Failed edit organisasi");
+            self.$refs.kegiatandetailform.showSnackBar(0,"Failed add rincian kegiatan");
           }
           self.loading=false;
         })
         .catch(()=> {
-          self.$refs.organisasiform.showSnackBar(0,"Failed edit organisasi");
+          self.$refs.kegiatandetailform.showSnackBar(0,"Failed add rincian kegiatan");
           self.loading=false;
         });
     },
-    addOrganisasi(organisasi) {
+    addKegiatan(kegiatandetail) {
       this.loading=true;
       let self = this;
       let formData = new FormData();
-      console.log(this.i_entry);
-      formData.append("i_lkm_tmpl", organisasi.i_lkm_tmpl);
-      formData.append("c_org", organisasi.c_org);
-      formData.append("c_org_parent", organisasi.c_org_parent);
-      formData.append("c_org_type", organisasi.c_org_type);
-      formData.append("c_lkm_resp", organisasi.c_lkm_resp);
-      formData.append("n_lkm_resp", organisasi.n_lkm_resp);
+      formData.append("n_lkm_jobdtl", kegiatandetail.n_lkm_jobdtl);
+      formData.append("d_lkm_milstart", kegiatandetail.d_lkm_milstart);
+      formData.append("d_lkm_milend", kegiatandetail.d_lkm_milend);
+      formData.append("i_lkm_job", kegiatandetail.i_lkm_job);
+      formData.append("e_lkm_jobdtltgt", kegiatandetail.e_lkm_jobdtltgt);
       formData.append("i_entry",this.i_entry);
       formData.append("i_update",this.i_entry);
       let options = {
         method: "post",
-        url: `${process.env.VUE_APP_API_NIST}/lkm/organisasi`,
+        url: `${process.env.VUE_APP_API_NIST}/lkm/job-detail`,
         headers: { "Content-Type": "multipart/form-data" },
         data: formData,
       };
@@ -145,24 +145,24 @@ export default {
         .request(options)
         .then(function (response) {
           if(response.status>= 200 && response.status < 400){
-              self.$refs.organisasiform.showSnackBar(1,"Succesfull add organisasi");
-              self.populateOrganisasi();
+              self.$refs.kegiatandetailform.showSnackBar(1,"Succesfull edit rincian kegiatan");
+              self.populateKegiatan();
           }else{
-            self.$refs.organisasiform.showSnackBar(0,"Failed add organisasi");
+            self.$refs.kegiatandetailform.showSnackBar(0,"Failed edit rincian kegiatan");
           }
           self.loading=false;
         })
         .catch(()=> {
-          self.$refs.organisasiform.showSnackBar(0,"Failed add organisasi");
+          self.$refs.kegiatandetailform.showSnackBar(0,"Failed edit rincian kegiatan");
           self.loading=false;
         });
     },
-    deleteOrganisasi(id) {
+    deleteKegiatan(id) {
       this.loading=true;
       let self = this;
       let options = {
         method: "DELETE",
-        url: `${process.env.VUE_APP_API_NIST}/lkm/organisasi`,
+        url: `${process.env.VUE_APP_API_NIST}/lkm/job-detail`,
         params: { id: id },
       };
 
@@ -170,24 +170,24 @@ export default {
         .request(options)
         .then(function (response) {
           if(response.status>= 200 && response.status < 400){
-              self.$refs.organisasiform.showSnackBar(1,"Succesfull delete organisasi");
-              self.populateOrganisasi();
+              self.$refs.kegiatandetailform.showSnackBar(1,"Succesfull delete rincian kegiatan");
+              self.populateKegiatan();
           }else{
-            self.$refs.organisasiform.showSnackBar(0,"Failed delete organisasi");
+            self.$refs.kegiatandetailform.showSnackBar(0,"Failed delete rincian kegiatan");
           }
           self.loading=false;
         })
         .catch(()=> {
-          self.$refs.organisasiform.showSnackBar(0,"Failed delete organisasi");
+          self.$refs.kegiatandetailform.showSnackBar(0,"Failed delete rincian kegiatan");
           self.loading=false;
         });
     },
-    populateOrganisasi() {
-      this.organisasis = [];
+    populateKegiatan() {
       let self = this;
       let options = {
         method: "GET",
-        url: `${process.env.VUE_APP_API_NIST}/lkm/organisasi`,
+        url: `${process.env.VUE_APP_API_NIST}/lkm/job-detail/query`,
+        params:{i_lkm_job:this.kegiatan.i_lkm_job}
       };
 
       axios
@@ -195,7 +195,7 @@ export default {
         .then((response)=> {
           if (response.status === 200) {
             let data = response.data;
-            self.organisasis = data;
+            self.kegiatandetails = data;
             self.loading = false;
           } else {
             console.log("gagal");
@@ -205,48 +205,26 @@ export default {
         .catch(function (error) {
           console.error(error);
         });
-    },
-    populateOrganisasiInit() {
-      this.loading = true;
-      this.aggregates = [];
-      let self = this;
-      let options = {
-        method: "GET",
-        url: `${process.env.VUE_APP_API_NIST}/lkm/template/active`,
-      };
-
-      axios
-        .request(options)
-        .then((response)=> {
-          if (response.status === 200) {
-            let data = response.data;
-            self.template = data[0];
-            self.populateOrganisasi();
-          } else {
-            console.log("gagal");
-          }
-          self.loading = false;
-        })
-        .catch(function (error) {
-          console.error(error);
-        });
+      
     },
     refresh(){
-      this.populateOrganisasiInit();
+      this.populateKegiatan();
+    },
+    setKegiatan(kegiatan){
+      this.kegiatan = kegiatan;
     }
   },
   mounted() {
     let user = JSON.parse( this.$store.getters.user);
     let menuauth = JSON.parse( this.$store.getters.menuAuth);
-    this.menuauth = menuauth.filter((element)=>{return element.id=='142'})[0];
+    this.menuauth = menuauth.filter((element)=>{return element.id=='61'})[0];
     this.i_entry =  user.i_user;
-    this.populateOrganisasiInit();
   },
 };
 </script>
 
 <style>
-#organisasi {
+#kegiatan {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
